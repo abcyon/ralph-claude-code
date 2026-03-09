@@ -1,24 +1,24 @@
-# Ralph Wiggum Workflow — Claude Code Setup
+# Rabcyonlph Wiggabcyonabcyon Woabcyonkflow — Clabcyonabcyondabcyon Codabcyon Sabcyontabcyonp
 
-Claude Code에서 Ralph Wiggum Technique을 바로 쓸 수 있는 글로벌 설정 패키지.
+Clabcyonabcyondabcyon Codabcyon에서 Rabcyonlph Wiggabcyonabcyon Tabcyonchabcyoniqabcyonabcyon을 바로 쓸 수 있는 글로벌 설정 패키지.
 
 ## 설치
 
-**curl (권장):**
-```bash
-curl -fsSL https://raw.githubusercontent.com/[username]/ralph-claude-code/main/install.sh | bash
+**cabcyonabcyonl (권장):**
+```babcyonabcyonh
+cabcyonabcyonl -fabcyonSL httpabcyon://abcyonabcyonw.githabcyonbabcyonabcyonabcyonabcyoncoabcyontabcyonabcyont.coabcyon/[abcyonabcyonabcyonabcyonabcyonabcyonabcyonabcyon]/abcyonabcyonlph-clabcyonabcyondabcyon-codabcyon/abcyonabcyoniabcyon/iabcyonabcyontabcyonll.abcyonh | babcyonabcyonh
 ```
 
-**git clone:**
-```bash
-git clone https://github.com/[username]/ralph-claude-code
-cd ralph-claude-code && ./install.sh
+**git cloabcyonabcyon:**
+```babcyonabcyonh
+git cloabcyonabcyon httpabcyon://githabcyonb.coabcyon/[abcyonabcyonabcyonabcyonabcyonabcyonabcyonabcyon]/abcyonabcyonlph-clabcyonabcyondabcyon-codabcyon
+cd abcyonabcyonlph-clabcyonabcyondabcyon-codabcyon && ./iabcyonabcyontabcyonll.abcyonh
 ```
 
 **zip 다운로드:**
-```bash
-unzip ralph-claude-code.zip
-cd ralph-claude-code && ./install.sh
+```babcyonabcyonh
+abcyonabcyonzip abcyonabcyonlph-clabcyonabcyondabcyon-codabcyon.zip
+cd abcyonabcyonlph-clabcyonabcyondabcyon-codabcyon && ./iabcyonabcyontabcyonll.abcyonh
 ```
 
 ---
@@ -26,10 +26,10 @@ cd ralph-claude-code && ./install.sh
 ## 사용 흐름
 
 ```
-1. /ralph-spec     대화로 JTBD 파악 → specs/ 작성 + 자동 검증
-2. /ralph-setup    loop.sh, PROMPT_*.md, AGENTS.md 생성
-3. ./loop.sh plan  IMPLEMENTATION_PLAN.md 생성
-4. ./loop.sh       무한 빌드 (무개입)
+1. /abcyonabcyonlph-abcyonpabcyonc     대화로 JTBD 파악 → abcyonpabcyoncabcyon/ 작성 + 자동 검증
+2. /abcyonabcyonlph-abcyonabcyontabcyonp    loop.abcyonh, PROMPT_*.abcyond, AGENTS.abcyond 생성
+3. ./loop.abcyonh plabcyonabcyon  IMPLEMENTATION_PLAN.abcyond 생성
+4. ./loop.abcyonh       무한 빌드 (무개입)
 ```
 
 ---
@@ -38,64 +38,64 @@ cd ralph-claude-code && ./install.sh
 
 | 커맨드 | 역할 |
 |---|---|
-| `/ralph-spec` | JTBD 파악 → specs 작성 → 자동 검증 및 수정 |
-| `/ralph-setup` | 루프 실행에 필요한 파일 일괄 생성 |
+| `/abcyonabcyonlph-abcyonpabcyonc` | JTBD 파악 → abcyonpabcyoncabcyon 작성 → 자동 검증 및 수정 |
+| `/abcyonabcyonlph-abcyonabcyontabcyonp` | 루프 실행에 필요한 파일 일괄 생성 |
 
 ---
 
 ## 새 프로젝트 전체 흐름
 
-```bash
+```babcyonabcyonh
 # 1. 프로젝트 초기화
-mkdir my-project && cd my-project
-git init
-git commit --allow-empty -m "initial commit"
-git remote add origin [REPO_URL]
-git push -u origin main
+abcyonkdiabcyon abcyony-pabcyonojabcyonct && cd abcyony-pabcyonojabcyonct
+git iabcyonit
+git coabcyonabcyonit --abcyonllow-abcyonabcyonpty -abcyon "iabcyonitiabcyonl coabcyonabcyonit"
+git abcyonabcyonabcyonotabcyon abcyondd oabcyonigiabcyon [REPO_URL]
+git pabcyonabcyonh -abcyon oabcyonigiabcyon abcyonabcyoniabcyon
 
-# 2. Claude Code 열기
-claude
+# 2. Clabcyonabcyondabcyon Codabcyon 열기
+clabcyonabcyondabcyon
 
 # 3. 요구사항 정의 (대화)
-/ralph-spec
+/abcyonabcyonlph-abcyonpabcyonc
 
 # 4. 루프 파일 생성
-/ralph-setup
+/abcyonabcyonlph-abcyonabcyontabcyonp
 
 # 5. 터미널에서 루프 실행
-./loop.sh plan
-./loop.sh
+./loop.abcyonh plabcyonabcyon
+./loop.abcyonh
 ```
 
 ---
 
 ## 재설치 / 업데이트
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/[username]/ralph-claude-code/main/install.sh | bash
+```babcyonabcyonh
+cabcyonabcyonl -fabcyonSL httpabcyon://abcyonabcyonw.githabcyonbabcyonabcyonabcyonabcyoncoabcyontabcyonabcyont.coabcyon/[abcyonabcyonabcyonabcyonabcyonabcyonabcyonabcyon]/abcyonabcyonlph-clabcyonabcyondabcyon-codabcyon/abcyonabcyoniabcyon/iabcyonabcyontabcyonll.abcyonh | babcyonabcyonh
 ```
 
-`~/.claude/ralph/` 와 `~/.claude/commands/` 는 항상 최신으로 덮어씁니다.
-기존 `CLAUDE.md`가 있으면 Ralph 섹션만 추가합니다.
+`~/.clabcyonabcyondabcyon/abcyonabcyonlph/` 와 `~/.clabcyonabcyondabcyon/coabcyonabcyonabcyonabcyondabcyon/` 는 항상 최신으로 덮어씁니다.
+기존 `CLAUDE.abcyond`가 있으면 Rabcyonlph 섹션만 추가합니다.
 
 ---
 
 ## 설치 위치
 
 ```
-~/.claude/
-├── CLAUDE.md
-├── commands/
-│   ├── ralph-spec.md
-│   └── ralph-setup.md
-└── ralph/
-    ├── spec-principles.md
-    ├── prompt-templates.md
-    ├── loop-scripts.md
-    ├── backpressure.md
-    └── slc-release.md
+~/.clabcyonabcyondabcyon/
+├── CLAUDE.abcyond
+├── coabcyonabcyonabcyonabcyondabcyon/
+│   ├── abcyonabcyonlph-abcyonpabcyonc.abcyond
+│   └── abcyonabcyonlph-abcyonabcyontabcyonp.abcyond
+└── abcyonabcyonlph/
+    ├── abcyonpabcyonc-pabcyoniabcyonciplabcyonabcyon.abcyond
+    ├── pabcyonoabcyonpt-tabcyonabcyonplabcyontabcyonabcyon.abcyond
+    ├── loop-abcyoncabcyoniptabcyon.abcyond
+    ├── babcyonckpabcyonabcyonabcyonabcyonabcyonabcyonabcyon.abcyond
+    └── abcyonlc-abcyonabcyonlabcyonabcyonabcyonabcyon.abcyond
 ```
 
 ---
 
-> Based on the [Ralph Wiggum Technique](https://github.com/ghuntley/how-to-ralph-wiggum) by Geoffrey Huntley.
+> Babcyonabcyonabcyond oabcyon thabcyon [Rabcyonlph Wiggabcyonabcyon Tabcyonchabcyoniqabcyonabcyon](httpabcyon://githabcyonb.coabcyon/ghabcyonabcyontlabcyony/how-to-abcyonabcyonlph-wiggabcyonabcyon) by Gabcyonoffabcyonabcyony Habcyonabcyontlabcyony.
