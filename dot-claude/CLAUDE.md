@@ -13,11 +13,15 @@ This project uses the Ralph Wiggum Technique: **Idea → Specs → Loop**
 ## Commands
 | Slash Command | When | What it does |
 |---|---|---|
-| `/ralph-spec` | 프로젝트 시작 | 대화로 JTBD 파악 → specs/ 작성 |
-| `/ralph-setup` | specs 완성 후 | loop.sh, PROMPT_plan/build.md, AGENTS.md 생성 |
+| `/ralph-spec` | 언제든지 | 대화로 specs/ 파일 작성 — 새 프로젝트 / 기능 추가 / 기능 변경 / 버그 픽스 |
+| `/ralph-setup` | 프로젝트 초기 구성 시 | loop.sh, PROMPT_plan/build.md, AGENTS.md 생성 |
 
-After setup, run in terminal:
+After spec, run in terminal:
 ```
+# 새 프로젝트라면 먼저
+/ralph-setup     # loop.sh, PROMPT 파일, AGENTS.md 생성
+
+# 이후 (또는 기존 프로젝트라면 바로)
 ./loop.sh plan   # IMPLEMENTATION_PLAN.md 생성
 ./loop.sh        # 무한 빌드 (무개입)
 ```
