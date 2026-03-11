@@ -39,6 +39,10 @@
 
 - [x] **`install.sh` CLAUDE.md merge — stale detection** — Now removes existing Ralph section and re-appends latest version instead of skipping.
 
+- [x] **`install.sh` CLAUDE.md merge — last-section edge case** — The `sed` range pattern failed when Ralph was the last section in CLAUDE.md (range never closed at EOF). Replaced with `awk` that correctly handles both mid-file and last-section cases.
+
+- [x] **`specs/ralph-commands.md` — completion check wording** — Spec line 124 said `grep -c '^\s*- \[ \]'` (only `[ ]`) but implementation correctly counts both `[ ]` and `[→]`. Updated spec to match.
+
 - [x] **`ralph-spec.md` — closing guidance now includes `/ralph-plan`, `/ralph-loop`** — Added slash command alternatives alongside terminal commands.
 
 - [x] **`prompt-templates.md` — fixed path reference** — Changed `references/loop-scripts.md` to `~/.claude/ralph/loop-scripts.md`.

@@ -68,7 +68,13 @@ if [ -f "$TARGET/CLAUDE.md" ]; then
         echo "→ Updating Ralph section in CLAUDE.md..."
         # Remove existing Ralph section (from "# Ralph Wiggum Workflow" to end of file or next top-level section)
         # Strategy: delete the Ralph block and re-append the latest version
-        sed -i.bak '/^# Ralph Wiggum Workflow$/,/^# [^R]/{ /^# [^R]/!d; }' "$TARGET/CLAUDE.md"
+        # Uses awk to handle both mid-file and last-section cases (sed range fails at EOF)
+        awk '
+            /^# Ralph Wiggum Workflow$/ { skip=1; next }
+            skip && /^# / { skip=0 }
+            !skip { print }
+        ' "$TARGET/CLAUDE.md" > "$TARGET/CLAUDE.md.tmp"
+        mv "$TARGET/CLAUDE.md.tmp" "$TARGET/CLAUDE.md"
         # Remove trailing blank lines
         sed -i.bak -e :a -e '/^\n*$/{$d;N;ba' -e '}' "$TARGET/CLAUDE.md"
         printf "\n---\n\n" >> "$TARGET/CLAUDE.md"
