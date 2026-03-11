@@ -13,7 +13,7 @@
 
 ## P2 — Minor / Cosmetic
 
-(none — all resolved)
+- [x] **`loop-scripts.md` template drift — loop.sh 8 diffs, status.sh 5 diffs** — Synced Enhanced Loop template (MAX_TOTAL, .ralph_pid trap, =prefix filter, [→]→[ ] done revert, high-water mark in update_status/update_status_done, branch-guard update_status_done, ERE grep) and status.sh template (high-water mark model, TOTAL_LINE parsing, ERE grep, negative-COMPLETED guard, removed old log section).
 
 ---
 
