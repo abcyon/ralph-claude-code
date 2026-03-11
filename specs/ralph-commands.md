@@ -367,6 +367,32 @@ Started: 2026-03-11 14:32:01
 - [ ] `- [→] = in progress` 줄이 진행 중 태스크로 표시되지 않음
 - [ ] 정상 태스크는 그대로 파싱됨
 
+### `status.sh` — `grep -c` 0개 매치 시 PENDING 이중 출력 버그
+
+**Current Behavior**: `PENDING=$(grep -Ec '^\[ \]|^\[→\]' .ralph_status 2>/dev/null || echo "0")` — `grep -c`는 매치 0개일 때 `"0"` 출력 + exit code 1 반환. `|| echo "0"`도 실행되어 `PENDING="0\n0"`. 이후 `$((TOTAL - PENDING))` 산술식에서 오류 발생:
+```
+./status.sh: line 70: 0
+0: syntax error in expression (error token is "0")
+```
+
+**Expected Behavior**: `PENDING`이 항상 단일 숫자(0 이상)로 설정됨.
+
+**Fix**: `|| echo "0"` 제거 후 `PENDING=${PENDING:-0}` 로 기본값 처리.
+```bash
+PENDING=$(grep -Ec '^\[ \]|^\[→\]' .ralph_status 2>/dev/null)
+PENDING=${PENDING:-0}
+```
+
+동일 패턴이 `loop-scripts.md` status.sh 템플릿에도 존재 → 동시 수정 필요.
+
+**Regression Guard**: PENDING > 0인 경우 동작 변화 없음.
+
+#### Acceptance Criteria
+
+- [ ] IMPLEMENTATION_PLAN.md 존재 + 미완료 태스크 없을 때 `status.sh` 오류 없이 실행됨
+- [ ] `PENDING=0` 일 때 `[████████████████] N/N 100% 완료!` 표시
+- [ ] `loop-scripts.md` status.sh 템플릿도 동일하게 수정됨
+
 ---
 
 ## Edge Cases

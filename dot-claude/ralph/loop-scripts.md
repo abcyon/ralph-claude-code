@@ -389,7 +389,8 @@ while true; do
         TOTAL=$(echo "$TOTAL_LINE" | grep -o 'Total: [0-9]*' | grep -o '[0-9]*')
         TOTAL=${TOTAL:-0}
         # PENDING = current [ ] + [→] lines in .ralph_status
-        PENDING=$(grep -Ec '^\[ \]|^\[→\]' .ralph_status 2>/dev/null || echo "0")
+        PENDING=$(grep -Ec '^\[ \]|^\[→\]' .ralph_status 2>/dev/null)
+        PENDING=${PENDING:-0}
         # COMPLETED = TOTAL - PENDING (accurate even when tasks are cleaned from plan)
         COMPLETED=$((TOTAL - PENDING))
         # Guard against negative (shouldn't happen, but be safe)

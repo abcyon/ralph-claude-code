@@ -13,6 +13,12 @@
 
 ## P2 — Minor / Cosmetic
 
+- [ ] **`dot-claude/CLAUDE.md` command table — `/ralph-setup` description incomplete** — Currently says "loop.sh, PROMPT_plan/build.md, AGENTS.md 생성" but `ralph-setup.md` also generates `status.sh` and `PROMPT_plan_work.md`. Update description to match actual output.
+- [ ] **`status.sh` — no stale-state detection** — Does not verify `.ralph_pid` is alive. A leftover `.ralph_status` from a previous (finished/crashed) run displays as if ralph is still running. Could check `.ralph_pid` existence + `kill -0` to show a "stopped" indicator.
+- [ ] **`install.sh` curl mode — hardcoded file list asymmetry** — Local-clone mode uses `cp dot-claude/commands/*.md` (glob), but curl mode downloads each file by name. Adding a new command file to `dot-claude/commands/` requires a manual edit to the curl download list. Consider generating the file list or adding a comment reminder.
+
+### Previously completed P2
+
 - [x] **`CLAUDE.md` — `slc-release.md` missing from Reference section** — Added `SLC release workflow → @~/.claude/ralph/slc-release.md` to the "Reference (load on demand)" list. File was installed by `install.sh` but not documented.
 - [x] **`loop-scripts.md` template drift — loop.sh 8 diffs, status.sh 5 diffs** — Synced Enhanced Loop template (MAX_TOTAL, .ralph_pid trap, =prefix filter, [→]→[ ] done revert, high-water mark in update_status/update_status_done, branch-guard update_status_done, ERE grep) and status.sh template (high-water mark model, TOTAL_LINE parsing, ERE grep, negative-COMPLETED guard, removed old log section).
 
