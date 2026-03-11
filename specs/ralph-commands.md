@@ -395,6 +395,57 @@ PENDING=${PENDING:-0}
 
 ---
 
+### `status.sh` — Tasks 섹션 타이틀 축약 표시
+
+**Current Behavior**: `.ralph_status`의 태스크 라인 전체를 그대로 출력. 태스크 설명이 길어 한눈에 파악하기 어려움.
+```
+[ ] **`dot-claude/CLAUDE.md` command table — `/ralph-setup` description incomplete** — Currently says "loop.sh, PROMPT_plan/build.md, AGENTS.md 생성" but...
+```
+
+**Expected Behavior**: `status.sh` 표시 레이어에서만 태스크 텍스트를 축약. ` — ` 구분자 앞 타이틀만 추출, `**` bold 마커 제거:
+```
+[ ] `dot-claude/CLAUDE.md` command table
+[→] `status.sh` — no stale-state detection
+[x] install.sh curl mode
+```
+- ` — ` 없는 짧은 태스크는 전체 표시
+- `.ralph_status` 파일 내용 자체는 변경 없음 (display layer만 변경)
+- `loop.sh`의 `write_tasks()` 출력 형식 변경 없음
+
+**Regression Guard**: `.ralph_status` 파일과 `loop.sh` write_tasks() 출력은 그대로 유지.
+
+#### Acceptance Criteria
+
+- [ ] Tasks 섹션에서 ` — ` 앞 타이틀만 표시됨
+- [ ] `**` bold 마커가 제거됨
+- [ ] ` — ` 없는 태스크는 전체 표시됨
+- [ ] `.ralph_status` 파일 내용 변화 없음
+- [ ] `loop-scripts.md` status.sh 템플릿도 동일하게 수정됨
+
+---
+
+### `status.sh` — stale-state 감지 (`.ralph_pid` 없거나 프로세스 종료)
+
+**Current Behavior**: `.ralph_status` 파일만 존재하면 ralph가 실행 중인 것처럼 표시. `.ralph_pid`가 없거나 프로세스가 종료된 경우에도 이전 상태가 그대로 출력됨.
+
+**Expected Behavior**: `.ralph_status` 출력 전 다음 순서로 동작 중 여부 확인:
+1. `.ralph_pid` 파일 없음 → "ralph가 동작 중이지 않아" 출력 후 대기
+2. `.ralph_pid` 존재하지만 `kill -0 <pid>` 실패 → "ralph가 동작 중이지 않아" 출력 후 대기
+3. 위 두 조건 모두 통과 → 기존대로 `.ralph_status` 출력
+
+기존 "`.ralph_status` 파일 없음" 체크는 유지.
+
+**Regression Guard**: 정상 실행 중일 때 (`kill -0` 성공) 동작 변화 없음.
+
+#### Acceptance Criteria
+
+- [ ] `.ralph_pid` 없을 때 "ralph가 동작 중이지 않아" 출력
+- [ ] `.ralph_pid` 존재하지만 프로세스 종료 시 "ralph가 동작 중이지 않아" 출력
+- [ ] `.ralph_pid` + 프로세스 살아있을 때 정상 상태 출력
+- [ ] `loop-scripts.md` status.sh 템플릿도 동일하게 수정됨
+
+---
+
 ## Edge Cases
 
 - **IMPLEMENTATION_PLAN.md 없음**: `.ralph_status`에 태스크 목록 생략, 완료 감지 비활성화

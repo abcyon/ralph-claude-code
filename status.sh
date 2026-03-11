@@ -13,6 +13,14 @@ while true; do
         continue
     fi
 
+    # Stale-state detection: .ralph_pid 없거나 프로세스 종료 시 stale
+    if [ ! -f ".ralph_pid" ] || ! kill -0 "$(cat .ralph_pid 2>/dev/null)" 2>/dev/null; then
+        echo "ralph가 동작 중이지 않아 (stale status)"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        sleep "$INTERVAL"
+        continue
+    fi
+
     # ── Parse .ralph_status header ──
     MODE_LINE=$(head -1 .ralph_status)
     STARTED_LINE=$(sed -n '2p' .ralph_status)
@@ -105,8 +113,11 @@ while true; do
     echo ""
     echo "── Tasks ───────────────────────────────"
 
-    # Extract task lines from .ralph_status (lines starting with [x], [→], [ ])
-    grep -E '^\[x\]|^\[→\]|^\[ \]' .ralph_status 2>/dev/null || echo "(태스크 없음)"
+    # Extract task lines, truncate at " — " separator, remove ** bold markers
+    grep -E '^\[x\]|^\[→\]|^\[ \]' .ralph_status 2>/dev/null \
+        | sed 's/ — .*//' \
+        | sed 's/\*\*//g' \
+        || echo "(태스크 없음)"
 
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 

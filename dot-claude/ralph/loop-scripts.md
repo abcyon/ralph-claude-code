@@ -231,14 +231,14 @@ while true; do
             --output-format=stream-json \
             --model opus \
             --verbose 2>&1 | tee "$CLAUDE_OUTPUT_FILE"
-        CLAUDE_EXIT=${PIPESTATUS[1]:-0}
+        CLAUDE_EXIT=${PIPESTATUS[0]:-0}
     else
         cat "$PROMPT_FILE" | claude -p \
             --dangerously-skip-permissions \
             --output-format=stream-json \
             --model opus \
             --verbose 2>&1 | tee "$CLAUDE_OUTPUT_FILE"
-        CLAUDE_EXIT=${PIPESTATUS[1]:-0}
+        CLAUDE_EXIT=${PIPESTATUS[0]:-0}
     fi
 
     if [ "$CLAUDE_EXIT" -ne 0 ]; then
@@ -276,7 +276,7 @@ while true; do
         echo "Error: Branch changed during loop!"
         echo "Started: '$STARTING_BRANCH' → Now: '$CURRENT_BRANCH'"
         echo "Stopping loop. Run: git checkout $STARTING_BRANCH"
-        update_status_done
+        update_status "[ERROR] Branch changed: $STARTING_BRANCH → $CURRENT_BRANCH"
         exit 1
     fi
 
@@ -332,6 +332,14 @@ while true; do
 
     if [ ! -f ".ralph_status" ]; then
         echo "ralph가 실행 중이지 않아"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        sleep "$INTERVAL"
+        continue
+    fi
+
+    # Stale-state detection: .ralph_pid 없거나 프로세스 종료 시 stale
+    if [ ! -f ".ralph_pid" ] || ! kill -0 "$(cat .ralph_pid 2>/dev/null)" 2>/dev/null; then
+        echo "ralph가 동작 중이지 않아 (stale status)"
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         sleep "$INTERVAL"
         continue
@@ -429,8 +437,11 @@ while true; do
     echo ""
     echo "── Tasks ───────────────────────────────"
 
-    # Extract task lines from .ralph_status (lines starting with [x], [→], [ ])
-    grep -E '^\[x\]|^\[→\]|^\[ \]' .ralph_status 2>/dev/null || echo "(태스크 없음)"
+    # Extract task lines, truncate at " — " separator, remove ** bold markers
+    grep -E '^\[x\]|^\[→\]|^\[ \]' .ralph_status 2>/dev/null \
+        | sed 's/ — .*//' \
+        | sed 's/\*\*//g' \
+        || echo "(태스크 없음)"
 
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 

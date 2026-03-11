@@ -203,14 +203,14 @@ while true; do
             --output-format=stream-json \
             --model opus \
             --verbose 2>&1 | tee "$CLAUDE_OUTPUT_FILE"
-        CLAUDE_EXIT=${PIPESTATUS[1]:-0}
+        CLAUDE_EXIT=${PIPESTATUS[0]:-0}
     else
         cat "$PROMPT_FILE" | claude -p \
             --dangerously-skip-permissions \
             --output-format=stream-json \
             --model opus \
             --verbose 2>&1 | tee "$CLAUDE_OUTPUT_FILE"
-        CLAUDE_EXIT=${PIPESTATUS[1]:-0}
+        CLAUDE_EXIT=${PIPESTATUS[0]:-0}
     fi
 
     if [ "$CLAUDE_EXIT" -ne 0 ]; then
@@ -248,7 +248,7 @@ while true; do
         echo "Error: Branch changed during loop!"
         echo "Started: '$STARTING_BRANCH' → Now: '$CURRENT_BRANCH'"
         echo "Stopping loop. Run: git checkout $STARTING_BRANCH"
-        update_status_done
+        update_status "[ERROR] Branch changed: $STARTING_BRANCH → $CURRENT_BRANCH"
         exit 1
     fi
 
