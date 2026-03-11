@@ -67,11 +67,18 @@ echo $! > .ralph_pid
 
 plan 프로세스 완료를 감지해야 해. 아래 로직을 실행:
 
-1. `.ralph_pid`의 PID 프로세스가 종료될 때까지 5초 간격으로 폴링 (`kill -0 <pid>` 체크)
+1. `.ralph_pid`의 PID 프로세스가 종료될 때까지 **30초 간격**으로 폴링 (`kill -0 <pid>` 체크). **타임아웃 30분** — 30분 초과 시 폴링 중단 후 아래 메시지 출력:
+   ```
+   ⚠️ plan이 30분 이상 응답이 없어. 로그를 확인해봐:
+     tail -50 .ralph_plan.log
+   ```
 2. 프로세스 종료 후 `.ralph_status` 파일에 `Done.` 문자열이 포함되어 있는지 확인
 
 **정상 완료 (`Done.` 있음):**
-- `AUTO_LOOP`가 y → `/ralph-loop` 흐름을 자동 시작 (사전 점검부터 실행까지 그대로 수행)
+- `AUTO_LOOP`가 y → `/ralph-loop` 흐름을 **사용자 개입 없이** 자동 시작. 아래 사전 점검은 모두 건너뜀:
+  - 2.0 (PID 충돌 체크) — plan 프로세스가 이미 종료되어 `.ralph_pid` 삭제됨
+  - 2.3 (IMPLEMENTATION_PLAN.md 확인 질문) — plan이 방금 완료됐으므로 존재 보장
+  - 바로 **3. 실행** 단계로 진입.
 - `AUTO_LOOP`가 n → 사용자에게 재질문:
   ```
   plan이 완료됐어. loop를 시작할까? (y/n)

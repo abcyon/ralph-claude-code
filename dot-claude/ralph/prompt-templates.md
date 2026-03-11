@@ -3,6 +3,7 @@
 ## `PROMPT_plan.md` 전체 템플릿
 
 > ⚠️ `[PROJECT GOAL]`을 실제 프로젝트 목표로 반드시 교체할 것
+> ⚠️ **IMPLEMENTATION_PLAN.md 포맷 규칙:** Status Legend는 `= ` 형식(`- [ ] = not started`)이어야 함. 실제 태스크는 `= `로 시작하지 않음. `write_tasks()`의 `if (line ~ /^=/) next` 필터가 이 규칙에 의존.
 
 ```
 0a. First, study `specs/overview.md` to understand the project goal and tech stack.
@@ -25,6 +26,7 @@ ULTIMATE GOAL: [PROJECT GOAL]. If an element is missing, search first to confirm
 > guardrail 번호(9, 99, 999...)는 숫자가 클수록 우선순위가 높은 불변 규칙(invariant). 수정 시 이 순서를 유지할 것.
 > ⚠️ **CI/CD 연결 시 주의:** `999` guardrail에 의해 매 성공 루프마다 git tag가 생성된다. tag에 CD 파이프라인이 연결되어 있다면 매 루프마다 배포가 트리거된다. 의도적이지 않다면 `999` guardrail을 제거하거나 CD 파이프라인의 tag 필터를 조정할 것.
 > ⚠️ **guardrail 번호 추가 시 주의:** 사용 중인 번호: 9, 99, 999, 9999, 99999, 999999, 9999999, 99999999, 999999999, 9999999999, 99999999999. 새 guardrail은 빈 번호를 골라 삽입할 것.
+> ⚠️ **IMPLEMENTATION_PLAN.md 포맷 규칙:** Status Legend는 `= ` 형식(`- [ ] = not started`)이어야 함. 실제 태스크는 `= `로 시작하지 않음. `write_tasks()`의 `if (line ~ /^=/) next` 필터가 이 규칙에 의존.
 
 ```
 0a. First, study `specs/overview.md` to orient yourself on the project.

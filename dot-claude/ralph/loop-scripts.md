@@ -302,9 +302,11 @@ while true; do
     ITERATION=$((ITERATION + 1))
     echo -e "\n\n======================== LOOP $ITERATION ========================\n"
 
-    # 구현 완료 시 루프 자동 종료: 미완료 항목(`- [ ]` + `- [→]`) 0개이면 Done
+    # 구현 완료 시 루프 자동 종료: 미완료 항목(`[ ]` + `[→]`) 0개이면 Done
+    # write_tasks를 사용해 Legend 라인(= not started 등) 필터링
     if [ -f "IMPLEMENTATION_PLAN.md" ]; then
-        PENDING=$(grep -Ec '^\s*- \[ \]|^\s*- \[→\]' IMPLEMENTATION_PLAN.md 2>/dev/null || echo "0")
+        PENDING=$(write_tasks "done" | grep -Ec '^\[ \]|^\[→\]' || true)
+        PENDING=${PENDING:-0}
         if [ "$PENDING" -eq 0 ]; then
             echo "All tasks complete. Stopping loop."
             update_status_done
