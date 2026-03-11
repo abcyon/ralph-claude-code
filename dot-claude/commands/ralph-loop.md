@@ -41,7 +41,7 @@
 아래 명령을 백그라운드로 실행해. 출력은 `.ralph_loop.log`로 리다이렉트:
 
 ```bash
-./loop.sh N > .ralph_loop.log 2>&1 &
+unset CLAUDECODE && ./loop.sh N > .ralph_loop.log 2>&1 &
 echo $! > .ralph_pid
 ```
 
@@ -53,6 +53,7 @@ echo $! > .ralph_pid
 ✅ /ralph_loop 시작 (build mode, N회)
 
 진행 상황 확인:
+  ./status.sh              # 실시간 상태
   cat .ralph_status        # 체크리스트
   tail -f .ralph_loop.log  # 전체 로그
 

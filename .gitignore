@@ -1,5 +1,6 @@
 .ralph_pid
 .ralph_status
+.ralph_claude_output.tmp
 *.log
 IMPLEMENTATION_PLAN.md
 PROMPT_*.md

@@ -42,6 +42,10 @@ STARTING_BRANCH=$(git branch --show-current)
 # PID 기록 — /ralph_plan, /ralph_loop 커맨드에서 kill 용도로 사용
 echo $$ > .ralph_pid
 
+# Temp file for claude output (retry-after parsing)
+CLAUDE_OUTPUT_FILE=".ralph_claude_output.tmp"
+trap 'rm -f "$CLAUDE_OUTPUT_FILE"' EXIT
+
 # plan-work: main/master 브랜치에서 실행 방지
 if [ "$MODE" = "plan-work" ]; then
     if [ "$STARTING_BRANCH" = "main" ] || [ "$STARTING_BRANCH" = "master" ]; then
@@ -63,6 +67,80 @@ if [ ! -f "$PROMPT_FILE" ]; then
     exit 1
 fi
 
+# ── Helper: IMPLEMENTATION_PLAN.md에서 태스크 목록 추출 ──
+# $1 = "running" → 첫 번째 [ ] 항목을 [→]로 표시, 그 외 → 현재 상태 그대로
+write_tasks() {
+    local mark_running="${1:-running}"
+    if [ -f "IMPLEMENTATION_PLAN.md" ]; then
+        sed '/<details>/,$d' IMPLEMENTATION_PLAN.md | awk -v mark="$mark_running" '
+            /^[[:space:]]*- \[x\]/ {
+                line = $0
+                sub(/^[[:space:]]*- \[x\] /, "", line)
+                print "[x] " line
+                next
+            }
+            /^[[:space:]]*- \[ \]/ {
+                line = $0
+                sub(/^[[:space:]]*- \[ \] /, "", line)
+                if (mark == "running" && !first) {
+                    print "[→] " line " — running..."
+                    first = 1
+                } else {
+                    print "[ ] " line
+                }
+            }
+        '
+    fi
+}
+
+# ── Helper: .ralph_status 업데이트 ──
+# $1 = optional extra line (e.g. retry info)
+update_status() {
+    local extra="${1:-}"
+    {
+        echo "Mode: $MODE | Iteration: $ITERATION | Branch: $STARTING_BRANCH"
+        echo "Started: $START_TIME"
+        [ -n "$extra" ] && echo "$extra"
+        echo ""
+        write_tasks "running"
+    } > .ralph_status
+}
+
+# ── Helper: 완료 상태 기록 ──
+update_status_done() {
+    local finish_time
+    finish_time=$(date "+%Y-%m-%d %H:%M:%S")
+    {
+        echo "Mode: $MODE | Iteration: $ITERATION | Branch: $STARTING_BRANCH"
+        echo "Started: $START_TIME | Finished: $finish_time"
+        echo ""
+        write_tasks "done"
+        echo ""
+        echo "Done."
+    } > .ralph_status
+}
+
+# ── Helper: retry-after 파싱 → 대기 시간(초) 반환 ──
+# 성공: target_time + 5분, 실패: 5분 고정
+parse_retry_wait() {
+    local output_file="$1"
+    local retry_seconds=""
+
+    # JSON output에서 retry-after / retry_after 값(초) 탐색
+    retry_seconds=$(grep -oi '"retry[_-]after"[[:space:]]*:[[:space:]]*[0-9]*' "$output_file" 2>/dev/null \
+        | grep -o '[0-9]*' | tail -1)
+
+    if [ -n "$retry_seconds" ] && [ "$retry_seconds" -gt 0 ] 2>/dev/null; then
+        # target_time + 5분
+        echo $((retry_seconds + 300))
+        return 0
+    fi
+
+    # 파싱 실패: 5분 고정
+    echo 300
+    return 1
+}
+
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "Mode:   $MODE | Branch: $STARTING_BRANCH"
 [ "$MODE" = "plan-work" ] && echo "Work:   $WORK_DESCRIPTION"
@@ -70,61 +148,63 @@ echo "Mode:   $MODE | Branch: $STARTING_BRANCH"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # 초기 .ralph_status 작성
-MAX_DISPLAY=${MAX_ITERATIONS:-"∞"}
 START_TIME=$(date "+%Y-%m-%d %H:%M:%S")
-{
-    echo "Mode: $MODE | Iterations: 0/${MAX_DISPLAY} | Branch: $STARTING_BRANCH"
-    echo "Started: $START_TIME"
-    echo ""
-} > .ralph_status
+update_status
 
 while true; do
     if [ "$MAX_ITERATIONS" -gt 0 ] && [ "$ITERATION" -ge "$MAX_ITERATIONS" ]; then
         echo "Reached max iterations: $MAX_ITERATIONS"
         [ "$MODE" = "plan-work" ] && echo "Scoped plan created. Run: ./loop.sh 20"
-        # .ralph_status 완료 표시
-        FINISH_TIME=$(date "+%Y-%m-%d %H:%M:%S")
-        {
-            echo "Mode: $MODE | Iterations: ${ITERATION}/${MAX_DISPLAY} | Branch: $STARTING_BRANCH"
-            echo "Started: $START_TIME | Finished: $FINISH_TIME"
-            echo ""
-            for i in $(seq 1 "$ITERATION"); do echo "[✓] Iteration $i — complete"; done
-            echo "Done."
-        } > .ralph_status
+        update_status_done
         break
     fi
 
     # .ralph_status — 현재 이터레이션 실행 중 표시
-    NEXT=$((ITERATION + 1))
-    {
-        echo "Mode: $MODE | Iterations: ${ITERATION}/${MAX_DISPLAY} | Branch: $STARTING_BRANCH"
-        echo "Started: $START_TIME"
-        echo ""
-        for i in $(seq 1 "$ITERATION"); do echo "[✓] Iteration $i — complete"; done
-        echo "[→] Iteration $NEXT — running..."
-    } > .ralph_status
+    update_status
 
-    # Claude 실행 — 실패해도 루프 계속 (rate limit, 일시 오류 등 재시도 가능)
-    CLAUDE_EXIT=0
+    # Claude 실행 — output을 tee로 파일 + stdout에 동시 출력
     if [ "$MODE" = "plan-work" ]; then
         envsubst < "$PROMPT_FILE" | claude -p \
             --dangerously-skip-permissions \
             --output-format=stream-json \
             --model opus \
-            --verbose || CLAUDE_EXIT=$?
+            --verbose 2>&1 | tee "$CLAUDE_OUTPUT_FILE"
+        CLAUDE_EXIT=${PIPESTATUS[1]:-0}
     else
         cat "$PROMPT_FILE" | claude -p \
             --dangerously-skip-permissions \
             --output-format=stream-json \
             --model opus \
-            --verbose || CLAUDE_EXIT=$?
+            --verbose 2>&1 | tee "$CLAUDE_OUTPUT_FILE"
+        CLAUDE_EXIT=${PIPESTATUS[1]:-0}
     fi
 
     if [ "$CLAUDE_EXIT" -ne 0 ]; then
-        echo "Warning: claude exited with code $CLAUDE_EXIT (rate limit or transient error). Retrying..."
-        sleep 5
-        ITERATION=$((ITERATION + 1))
-        echo -e "\n\n======================== LOOP $ITERATION (retry) ========================\n"
+        echo "Warning: claude exited with code $CLAUDE_EXIT"
+
+        # Rate limit / token 관련 오류 감지
+        if grep -qiE 'rate.limit|overloaded|too.many.requests|retry|429|capacity' "$CLAUDE_OUTPUT_FILE" 2>/dev/null; then
+            WAIT_SECONDS=$(parse_retry_wait "$CLAUDE_OUTPUT_FILE") || WAIT_SECONDS=300
+
+            # 재시도 예정 시각 계산 (macOS / Linux 호환)
+            RETRY_TIME=$(date -v+"${WAIT_SECONDS}"S "+%H:%M:%S" 2>/dev/null \
+                || date -d "+${WAIT_SECONDS} seconds" "+%H:%M:%S" 2>/dev/null \
+                || echo "unknown")
+            RETRY_MINUTES=$(( (WAIT_SECONDS + 59) / 60 ))
+
+            echo "Rate limit detected. Waiting ${RETRY_MINUTES}분 (until $RETRY_TIME)..."
+
+            # .ralph_status에 대기 상태 표시
+            update_status "[!] Token limit — retrying at $RETRY_TIME (${RETRY_MINUTES}분 후)"
+
+            sleep "$WAIT_SECONDS"
+        else
+            echo "Non-rate-limit error. Retrying in 5 seconds..."
+            sleep 5
+        fi
+
+        # 동일 이터레이션 재시도 (ITERATION 증가 없음)
+        echo -e "\n\n======================== LOOP $((ITERATION + 1)) (retry) ========================\n"
         continue
     fi
 
@@ -159,11 +239,16 @@ while true; do
     ITERATION=$((ITERATION + 1))
     echo -e "\n\n======================== LOOP $ITERATION ========================\n"
 
-    # .ralph_status — 완료된 이터레이션 업데이트
-    {
-        echo "Mode: $MODE | Iterations: ${ITERATION}/${MAX_DISPLAY} | Branch: $STARTING_BRANCH"
-        echo "Started: $START_TIME"
-        echo ""
-        for i in $(seq 1 "$ITERATION"); do echo "[✓] Iteration $i — complete"; done
-    } > .ralph_status
+    # 구현 완료 시 루프 자동 종료: 미완료 항목(`- [ ]`) 0개이면 Done
+    if [ -f "IMPLEMENTATION_PLAN.md" ]; then
+        PENDING=$(grep -c '^\s*- \[ \]' IMPLEMENTATION_PLAN.md 2>/dev/null || echo "0")
+        if [ "$PENDING" -eq 0 ]; then
+            echo "All tasks complete. Stopping loop."
+            update_status_done
+            break
+        fi
+    fi
+
+    # .ralph_status — IMPLEMENTATION_PLAN.md 최신 상태 반영
+    update_status
 done

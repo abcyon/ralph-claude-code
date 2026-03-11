@@ -7,14 +7,39 @@
 
 ---
 
-## Current: All items complete
+## P0 — Spec Violations (Critical)
 
-No open work items. All features implemented and validated:
-- install.sh (local + curl modes)
-- /ralph-spec, /ralph-setup, /ralph_plan, /ralph_loop commands
-- loop.sh (build, plan, plan-work modes with .ralph_status tracking)
-- Reference documents (spec-principles, prompt-templates, loop-scripts, backpressure, slc-release)
-- .gitignore for runtime files (PROMPT_*.md, IMPLEMENTATION_PLAN.md, .ralph_pid, .ralph_status, *.log)
+- [x] **`unset CLAUDECODE` missing from ralph-plan.md and ralph-loop.md** — Added `unset CLAUDECODE &&` to both command files.
+
+- [x] **`status.sh` template missing from `loop-scripts.md`** — Added full `status.sh` script section to `loop-scripts.md`.
+
+- [x] **`loop.sh` — task checklist missing from `.ralph_status`** — Replaced iteration-based status with IMPLEMENTATION_PLAN.md task list. Uses `write_tasks()` helper with `[→]` marker for first pending item.
+
+- [x] **`loop.sh` — auto-termination on completion** — Added `grep -c '^\s*- \[ \]'` check after each iteration. Exits with `Done.` when 0 pending items.
+
+- [x] **`loop.sh` — smart retry-after parsing** — Added `parse_retry_wait()` helper that parses retry-after from claude output, waits `target + 5min`. Falls back to 5min fixed wait on parse failure.
+
+## P1 — Important Gaps
+
+- [x] **`loop.sh` — retry should NOT increment ITERATION** — Removed ITERATION increment from error/retry block. Now uses `continue` without incrementing.
+
+- [x] **`loop.sh` — `.ralph_status` retry countdown** — `update_status` now accepts optional extra line for retry info: `[!] Token limit — retrying at HH:MM:SS (N분 후)`.
+
+- [x] **`loop-scripts.md` template synced with `loop.sh`** — Updated Enhanced Loop template in `loop-scripts.md` to match all loop.sh changes.
+
+## P2 — Minor / Cosmetic
+
+- [ ] **Command naming inconsistency: hyphen vs underscore** — Command files use hyphens (`ralph-plan.md`, `ralph-loop.md`) but spec, README, install.sh echo, and CLAUDE.md reference them with underscores (`/ralph_plan`, `/ralph_loop`). Claude Code resolves by filename → actual invocation is `/ralph-plan` and `/ralph-loop`. Either rename the files to `ralph_plan.md`/`ralph_loop.md` or update all docs to use hyphens.
+  - Files: `dot-claude/commands/ralph-plan.md`, `ralph-loop.md`, `specs/ralph-commands.md`, `README.md`, `install.sh`, `dot-claude/CLAUDE.md`
+
+- [ ] **`install.sh` CLAUDE.md merge — stale detection** — If `~/.claude/CLAUDE.md` already contains "Ralph Wiggum Workflow", install.sh skips the update entirely (line 68). This means re-running install.sh won't update CLAUDE.md even if the repo version has new content (e.g., `/ralph_plan`, `/ralph_loop` rows). Needs a version-aware merge or replace strategy.
+  - File: `install.sh` (lines 66-79)
+
+- [ ] **`ralph-spec.md` — closing guidance doesn't mention /ralph_plan, /ralph_loop** — The closing block only shows terminal commands (`./loop.sh plan`, `./loop.sh`), doesn't mention the new slash command alternatives.
+  - File: `dot-claude/commands/ralph-spec.md`
+
+- [ ] **`prompt-templates.md` — wrong path reference for PROMPT_plan_work.md** — References `references/loop-scripts.md` instead of `~/.claude/ralph/loop-scripts.md`.
+  - File: `dot-claude/ralph/prompt-templates.md`
 
 ---
 

@@ -34,7 +34,7 @@
 아래 명령을 백그라운드로 실행해. 출력은 `.ralph_plan.log`로 리다이렉트:
 
 ```bash
-./loop.sh plan N > .ralph_plan.log 2>&1 &
+unset CLAUDECODE && ./loop.sh plan N > .ralph_plan.log 2>&1 &
 echo $! > .ralph_pid
 ```
 
@@ -46,6 +46,7 @@ echo $! > .ralph_pid
 ✅ /ralph_plan 시작 (plan mode, N회)
 
 진행 상황 확인:
+  ./status.sh              # 실시간 상태
   cat .ralph_status        # 체크리스트
   tail -f .ralph_plan.log  # 전체 로그
 
