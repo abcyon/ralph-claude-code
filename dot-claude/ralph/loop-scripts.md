@@ -110,9 +110,13 @@ write_tasks() {
             /^[[:space:]]*- \[→\]/ {
                 line = $0
                 sub(/^[[:space:]]*- \[→\] /, "", line)
-                # In-progress items already marked — preserve as-is
-                print "[→] " line
-                found_running = 1
+                if (mark == "done") {
+                    # Done state: revert in-progress to pending (no running marker)
+                    print "[ ] " line
+                } else {
+                    print "[→] " line
+                    found_running = 1
+                }
                 next
             }
             /^[[:space:]]*- \[ \]/ {

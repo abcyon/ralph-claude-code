@@ -17,7 +17,8 @@
 
 ## P2 — Minor / Cosmetic
 
-(none remaining)
+- [x] **`loop.sh` — `write_tasks "done"` incorrectly marks `[→]` items as in-progress** — When loop terminates early (max iterations, branch change), existing `[→]` items in IMPLEMENTATION_PLAN.md were preserved in done status. Fixed to revert `[→]` to `[ ]` when `mark="done"`.
+- [x] **`specs/ralph-commands.md` — spec contradiction: log section in output example** — Output format example showed `── Log (last 5 lines) ──` section but text says "로그 출력 없음". Removed log section from example to match the no-log rule.
 
 ---
 
