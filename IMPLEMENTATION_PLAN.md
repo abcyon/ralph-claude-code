@@ -9,43 +9,15 @@
 
 ## P0 — Spec Violations (Critical)
 
-- [x] **`unset CLAUDECODE` missing from ralph-plan.md and ralph-loop.md** — Added `unset CLAUDECODE &&` to both command files.
-
-- [x] **`status.sh` template missing from `loop-scripts.md`** — Added full `status.sh` script section to `loop-scripts.md`.
-
-- [x] **`loop.sh` — task checklist missing from `.ralph_status`** — Replaced iteration-based status with IMPLEMENTATION_PLAN.md task list. Uses `write_tasks()` helper with `[→]` marker for first pending item.
-
-- [x] **`loop.sh` — auto-termination on completion** — Added `grep -c '^\s*- \[ \]'` check after each iteration. Exits with `Done.` when 0 pending items.
-
-- [x] **`loop.sh` — smart retry-after parsing** — Added `parse_retry_wait()` helper that parses retry-after from claude output, waits `target + 5min`. Falls back to 5min fixed wait on parse failure.
+(none remaining)
 
 ## P1 — Important Gaps
 
-- [x] **`loop.sh` — retry should NOT increment ITERATION** — Removed ITERATION increment from error/retry block. Now uses `continue` without incrementing.
-
-- [x] **`loop.sh` — `.ralph_status` retry countdown** — `update_status` now accepts optional extra line for retry info: `[!] Token limit — retrying at HH:MM:SS (N분 후)`.
-
-- [x] **`loop-scripts.md` template synced with `loop.sh`** — Updated Enhanced Loop template in `loop-scripts.md` to match all loop.sh changes.
-
-## Bug Fixes (discovered during review)
-
-- [x] **`loop.sh` — `write_tasks()` silently drops `[→]` in-progress items** — Added awk handler for `[→]` markers. If IMPLEMENTATION_PLAN.md has in-progress items, they are preserved in `.ralph_status` and prevent duplicate `[→]` marking on `[ ]` items.
-
-- [x] **`loop.sh` — auto-termination ignores `[→]` items** — Completion check now counts both `- [ ]` and `- [→]` as pending. Prevents premature loop exit when tasks are marked in-progress.
+(none remaining)
 
 ## P2 — Minor / Cosmetic
 
-- [x] **Command naming inconsistency: hyphen vs underscore** — Standardized all references to hyphens (`/ralph-plan`, `/ralph-loop`) to match filenames. Updated commands, specs, README, install.sh, CLAUDE.md, overview.md, AGENTS.md, loop.sh, loop-scripts.md.
-
-- [x] **`install.sh` CLAUDE.md merge — stale detection** — Now removes existing Ralph section and re-appends latest version instead of skipping.
-
-- [x] **`install.sh` CLAUDE.md merge — last-section edge case** — The `sed` range pattern failed when Ralph was the last section in CLAUDE.md (range never closed at EOF). Replaced with `awk` that correctly handles both mid-file and last-section cases.
-
-- [x] **`specs/ralph-commands.md` — completion check wording** — Spec line 124 said `grep -c '^\s*- \[ \]'` (only `[ ]`) but implementation correctly counts both `[ ]` and `[→]`. Updated spec to match.
-
-- [x] **`ralph-spec.md` — closing guidance now includes `/ralph-plan`, `/ralph-loop`** — Added slash command alternatives alongside terminal commands.
-
-- [x] **`prompt-templates.md` — fixed path reference** — Changed `references/loop-scripts.md` to `~/.claude/ralph/loop-scripts.md`.
+- [ ] **`install.sh` — `sed -i.bak` trailing-blank-line removal is macOS-only** — Line 79 uses `sed -i.bak -e :a -e '/^\n*$/{$d;N;ba' -e '}'` which is BSD/macOS `sed` syntax. GNU `sed` (Linux) interprets `-i.bak` differently and the expression may fail. Since `install.sh` supports curl-pipe from any platform, this should use a portable approach (e.g., `awk` or detect `sed` variant).
 
 ---
 
@@ -54,6 +26,37 @@
 <details>
 <summary>Click to expand</summary>
 
+### Previous P0 items
+- [x] **`unset CLAUDECODE` missing from ralph-plan.md and ralph-loop.md** — Added `unset CLAUDECODE &&` to both command files.
+- [x] **`status.sh` template missing from `loop-scripts.md`** — Added full `status.sh` script section to `loop-scripts.md`.
+- [x] **`loop.sh` — task checklist missing from `.ralph_status`** — Replaced iteration-based status with IMPLEMENTATION_PLAN.md task list. Uses `write_tasks()` helper with `[→]` marker for first pending item.
+- [x] **`loop.sh` — auto-termination on completion** — Added `grep -c '^\\s*- \\[ \\]'` check after each iteration. Exits with `Done.` when 0 pending items.
+- [x] **`loop.sh` — smart retry-after parsing** — Added `parse_retry_wait()` helper that parses retry-after from claude output, waits `target + 5min`. Falls back to 5min fixed wait on parse failure.
+- [x] **`status.sh` — missing progress bar, mode display, and ETA** — Rewrote `status.sh` with `▶ MODE` header, `── Progress ──` section (16-char progress bar + percent + ETA), `── Tasks ──` section. Handles all edge cases: 0 completed → "예측 중...", all complete → "완료!", no IMPLEMENTATION_PLAN.md → "plan 먼저 실행 필요".
+- [x] **`status.sh` template in `loop-scripts.md` must match** — Synced `loop-scripts.md` status.sh template with the new implementation.
+
+### Previous P1 items
+- [x] **`loop.sh` — retry should NOT increment ITERATION** — Removed ITERATION increment from error/retry block. Now uses `continue` without incrementing.
+- [x] **`loop.sh` — `.ralph_status` retry countdown** — `update_status` now accepts optional extra line for retry info: `[!] Token limit — retrying at HH:MM:SS (N분 후)`.
+- [x] **`loop-scripts.md` template synced with `loop.sh`** — Updated Enhanced Loop template in `loop-scripts.md` to match all loop.sh changes.
+- [x] **`loop.sh` — `.ralph_pid` not cleaned up on exit** — Added `.ralph_pid` removal to the EXIT trap alongside `$CLAUDE_OUTPUT_FILE`.
+- [x] **`loop.sh` — `grep -c` with `\|` alternation portability** — Changed to `grep -Ec` with `|` for POSIX-portable extended regex.
+- [x] **`loop.sh` — branch-change guard exits without `update_status_done`** — Added `update_status_done` call before `exit 1` in branch-change guard.
+
+### Previous Bug Fixes
+- [x] **`loop.sh` — `write_tasks()` silently drops `[→]` in-progress items** — Added awk handler for `[→]` markers.
+- [x] **`loop.sh` — auto-termination ignores `[→]` items** — Completion check now counts both `[ ]` and `[→]` as pending.
+
+### Previous P2 items
+- [x] **Command naming inconsistency: hyphen vs underscore** — Standardized all references to hyphens.
+- [x] **`install.sh` CLAUDE.md merge — stale detection** — Now removes existing Ralph section and re-appends latest version.
+- [x] **`install.sh` CLAUDE.md merge — last-section edge case** — Replaced `sed` with `awk` for section removal.
+- [x] **`specs/ralph-commands.md` — completion check wording** — Updated spec to match implementation (both `[ ]` and `[→]`).
+- [x] **`ralph-spec.md` — closing guidance includes `/ralph-plan`, `/ralph-loop`**
+- [x] **`prompt-templates.md` — fixed path reference**
+- [x] **`specs/ralph-commands.md` — uncommitted changes reviewed and committed** — Progress bar spec, mode display, ETA, edge cases, acceptance criteria all committed.
+
+### Initial implementation
 - [x] `dot-claude/commands/ralph-spec.md` — 4가지 작업 유형 분기, 자동 검증 포함
 - [x] `dot-claude/commands/ralph-setup.md` — loop.sh, PROMPT_*.md, AGENTS.md 생성
 - [x] `dot-claude/commands/ralph-plan.md` — Claude Code 내 plan 실행 (기본 1회)

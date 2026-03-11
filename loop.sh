@@ -44,7 +44,7 @@ echo $$ > .ralph_pid
 
 # Temp file for claude output (retry-after parsing)
 CLAUDE_OUTPUT_FILE=".ralph_claude_output.tmp"
-trap 'rm -f "$CLAUDE_OUTPUT_FILE"' EXIT
+trap 'rm -f "$CLAUDE_OUTPUT_FILE" ".ralph_pid"' EXIT
 
 # plan-work: main/master 브랜치에서 실행 방지
 if [ "$MODE" = "plan-work" ]; then
@@ -222,6 +222,7 @@ while true; do
         echo "Error: Branch changed during loop!"
         echo "Started: '$STARTING_BRANCH' → Now: '$CURRENT_BRANCH'"
         echo "Stopping loop. Run: git checkout $STARTING_BRANCH"
+        update_status_done
         exit 1
     fi
 
@@ -249,7 +250,7 @@ while true; do
 
     # 구현 완료 시 루프 자동 종료: 미완료 항목(`- [ ]` + `- [→]`) 0개이면 Done
     if [ -f "IMPLEMENTATION_PLAN.md" ]; then
-        PENDING=$(grep -c '^\s*- \[ \]\|^\s*- \[→\]' IMPLEMENTATION_PLAN.md 2>/dev/null || echo "0")
+        PENDING=$(grep -Ec '^\s*- \[ \]|^\s*- \[→\]' IMPLEMENTATION_PLAN.md 2>/dev/null || echo "0")
         if [ "$PENDING" -eq 0 ]; then
             echo "All tasks complete. Stopping loop."
             update_status_done
