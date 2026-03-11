@@ -15,15 +15,21 @@ This project uses the Ralph Wiggum Technique: **Idea → Specs → Loop**
 |---|---|---|
 | `/ralph-spec` | 언제든지 | 대화로 specs/ 파일 작성 — 새 프로젝트 / 기능 추가 / 기능 변경 / 버그 픽스 |
 | `/ralph-setup` | 프로젝트 초기 구성 시 | loop.sh, PROMPT_plan/build.md, AGENTS.md 생성 |
+| `/ralph_plan [n]` | plan 실행 시 | Claude Code 내에서 loop.sh plan 실행 (기본 1회) |
+| `/ralph_loop [n]` | build 실행 시 | Claude Code 내에서 loop.sh 실행 (기본 5회) |
 
-After spec, run in terminal:
+After spec, run in terminal or use slash commands directly:
 ```
 # 새 프로젝트라면 먼저
 /ralph-setup     # loop.sh, PROMPT 파일, AGENTS.md 생성
 
-# 이후 (또는 기존 프로젝트라면 바로)
+# 터미널 방식
 ./loop.sh plan   # IMPLEMENTATION_PLAN.md 생성
 ./loop.sh        # 무한 빌드 (무개입)
+
+# Claude Code 내 방식 (컨텍스트 소모 없음)
+/ralph_plan      # IMPLEMENTATION_PLAN.md 생성 (1회)
+/ralph_loop      # 빌드 시작 (5회)
 ```
 
 ## Reference (load on demand)

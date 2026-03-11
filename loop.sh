@@ -1,31 +1,3 @@
-# Loop Scripts Reference
-
-## Minimal Loop
-
-> ⚠️ `PROMPT_build.md` 또는 `PROMPT_plan.md`를 명시해서 실행할 것.
-> `PROMPT.md`라는 파일은 존재하지 않는다.
-
-```bash
-# Building 모드
-while :; do cat PROMPT_build.md | claude -p --dangerously-skip-permissions; done
-
-# Planning 모드
-while :; do cat PROMPT_plan.md | claude -p --dangerously-skip-permissions; done
-```
-
----
-
-## Enhanced Loop (권장)
-
-plan/build 모드 선택, max-iterations, 브랜치 guard, git push 안전 처리 포함.
-
-> ⚠️ **macOS:** `plan-work` 모드는 `envsubst` 필요.
-> `brew install gettext && brew link gettext`
->
-> ⚠️ **--verbose 주의:** 장기 루프(수십~수백 이터레이션)에서는 stdout 로그가 수십 MB에 달할 수 있음.
-> 초기 디버깅 시에만 `--verbose` 사용. 안정화 후에는 제거 권장.
-
-```bash
 #!/bin/bash
 # set -e는 의도적으로 사용하지 않음:
 #   - git push 실패 시 에러 메시지 없이 종료되는 문제 방지
@@ -195,36 +167,3 @@ while true; do
         for i in $(seq 1 "$ITERATION"); do echo "[✓] Iteration $i — complete"; done
     } > .ralph_status
 done
-```
-
----
-
-## `PROMPT_plan_work.md` 템플릿
-
-> ⚠️ `${WORK_SCOPE}`는 `envsubst`가 자동으로 치환한다. 직접 편집 금지.
-
-```
-0a. First, study `specs/overview.md` to understand the project goal and tech stack.
-0b. Then study remaining `specs/*` using parallel Sonnet subagents to learn all specifications.
-0c. Study @IMPLEMENTATION_PLAN.md (if present) to understand the plan so far.
-0d. Study `src/lib/*` using parallel Sonnet subagents to understand shared utilities & components.
-0e. For reference, the application source code is in `src/*`.
-
-1. You are creating a SCOPED implementation plan for work: "${WORK_SCOPE}". Use parallel Sonnet subagents to study existing source code in `src/*` and compare it against specs relevant to this work scope. Use an Opus subagent to analyze findings, prioritize tasks, and create/update @IMPLEMENTATION_PLAN.md as a bullet point list sorted in priority. Ultrathink.
-
-IMPORTANT: SCOPED PLANNING for "${WORK_SCOPE}" only. Include ONLY tasks directly related to this work scope. Plan only. Do NOT implement anything. Do NOT assume functionality is missing; confirm with code search first.
-
-ULTIMATE GOAL: Achieve the scoped work "${WORK_SCOPE}". If an element is missing, search first, then author the spec at specs/FILENAME.md and document the plan in @IMPLEMENTATION_PLAN.md.
-```
-
----
-
-## 모드 요약
-
-| 명령 | 모드 | 기본 반복 | 용도 |
-|---|---|---|---|
-| `./loop.sh` | build | 무제한 | 전체 빌드 |
-| `./loop.sh 20` | build | 20 | 제한된 빌드 |
-| `./loop.sh plan` | plan | 무제한 | 전체 plan 생성 |
-| `./loop.sh plan 5` | plan | 5 | plan (횟수 지정) |
-| `./loop.sh plan-work "desc"` | plan-work | 5 | 브랜치 스코프 plan |
