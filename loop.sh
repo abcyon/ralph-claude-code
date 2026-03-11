@@ -36,6 +36,7 @@ elif [[ "${1:-}" =~ ^[0-9]+$ ]]; then
 fi
 
 ITERATION=0
+MAX_TOTAL=0
 # 브랜치 변경 guard: 시작 브랜치를 고정하고 루프 중 변경되면 즉시 중단
 STARTING_BRANCH=$(git branch --show-current)
 
@@ -76,12 +77,14 @@ write_tasks() {
             /^[[:space:]]*- \[x\]/ {
                 line = $0
                 sub(/^[[:space:]]*- \[x\] /, "", line)
+                if (line ~ /^=/) next
                 print "[x] " line
                 next
             }
             /^[[:space:]]*- \[→\]/ {
                 line = $0
                 sub(/^[[:space:]]*- \[→\] /, "", line)
+                if (line ~ /^=/) next
                 if (mark == "done") {
                     # Done state: revert in-progress to pending (no running marker)
                     print "[ ] " line
@@ -94,6 +97,7 @@ write_tasks() {
             /^[[:space:]]*- \[ \]/ {
                 line = $0
                 sub(/^[[:space:]]*- \[ \] /, "", line)
+                if (line ~ /^=/) next
                 if (mark == "running" && !first && !found_running) {
                     print "[→] " line " — running..."
                     first = 1
@@ -109,9 +113,18 @@ write_tasks() {
 # $1 = optional extra line (e.g. retry info)
 update_status() {
     local extra="${1:-}"
+    # High-water mark: track max total tasks (never decreases)
+    if [ -f "IMPLEMENTATION_PLAN.md" ]; then
+        local current_total
+        current_total=$(write_tasks "done" | wc -l | tr -d ' ')
+        if [ "$current_total" -gt "$MAX_TOTAL" ]; then
+            MAX_TOTAL=$current_total
+        fi
+    fi
     {
         echo "Mode: $MODE | Iteration: $ITERATION | Branch: $STARTING_BRANCH"
         echo "Started: $START_TIME"
+        echo "Total: $MAX_TOTAL"
         [ -n "$extra" ] && echo "$extra"
         echo ""
         write_tasks "running"
@@ -122,9 +135,18 @@ update_status() {
 update_status_done() {
     local finish_time
     finish_time=$(date "+%Y-%m-%d %H:%M:%S")
+    # Update high-water mark one final time
+    if [ -f "IMPLEMENTATION_PLAN.md" ]; then
+        local current_total
+        current_total=$(write_tasks "done" | wc -l | tr -d ' ')
+        if [ "$current_total" -gt "$MAX_TOTAL" ]; then
+            MAX_TOTAL=$current_total
+        fi
+    fi
     {
         echo "Mode: $MODE | Iteration: $ITERATION | Branch: $STARTING_BRANCH"
         echo "Started: $START_TIME | Finished: $finish_time"
+        echo "Total: $MAX_TOTAL"
         echo ""
         write_tasks "done"
         echo ""

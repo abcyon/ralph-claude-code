@@ -64,6 +64,7 @@ elif [[ "${1:-}" =~ ^[0-9]+$ ]]; then
 fi
 
 ITERATION=0
+MAX_TOTAL=0
 # 브랜치 변경 guard: 시작 브랜치를 고정하고 루프 중 변경되면 즉시 중단
 STARTING_BRANCH=$(git branch --show-current)
 
@@ -104,12 +105,14 @@ write_tasks() {
             /^[[:space:]]*- \[x\]/ {
                 line = $0
                 sub(/^[[:space:]]*- \[x\] /, "", line)
+                if (line ~ /^=/) next
                 print "[x] " line
                 next
             }
             /^[[:space:]]*- \[→\]/ {
                 line = $0
                 sub(/^[[:space:]]*- \[→\] /, "", line)
+                if (line ~ /^=/) next
                 if (mark == "done") {
                     # Done state: revert in-progress to pending (no running marker)
                     print "[ ] " line
@@ -122,6 +125,7 @@ write_tasks() {
             /^[[:space:]]*- \[ \]/ {
                 line = $0
                 sub(/^[[:space:]]*- \[ \] /, "", line)
+                if (line ~ /^=/) next
                 if (mark == "running" && !first && !found_running) {
                     print "[→] " line " — running..."
                     first = 1
@@ -137,9 +141,18 @@ write_tasks() {
 # $1 = optional extra line (e.g. retry info)
 update_status() {
     local extra="${1:-}"
+    # High-water mark: track max total tasks (never decreases)
+    if [ -f "IMPLEMENTATION_PLAN.md" ]; then
+        local current_total
+        current_total=$(write_tasks "done" | wc -l | tr -d ' ')
+        if [ "$current_total" -gt "$MAX_TOTAL" ]; then
+            MAX_TOTAL=$current_total
+        fi
+    fi
     {
         echo "Mode: $MODE | Iteration: $ITERATION | Branch: $STARTING_BRANCH"
         echo "Started: $START_TIME"
+        echo "Total: $MAX_TOTAL"
         [ -n "$extra" ] && echo "$extra"
         echo ""
         write_tasks "running"
@@ -150,9 +163,18 @@ update_status() {
 update_status_done() {
     local finish_time
     finish_time=$(date "+%Y-%m-%d %H:%M:%S")
+    # Update high-water mark one final time
+    if [ -f "IMPLEMENTATION_PLAN.md" ]; then
+        local current_total
+        current_total=$(write_tasks "done" | wc -l | tr -d ' ')
+        if [ "$current_total" -gt "$MAX_TOTAL" ]; then
+            MAX_TOTAL=$current_total
+        fi
+    fi
     {
         echo "Mode: $MODE | Iteration: $ITERATION | Branch: $STARTING_BRANCH"
         echo "Started: $START_TIME | Finished: $finish_time"
+        echo "Total: $MAX_TOTAL"
         echo ""
         write_tasks "done"
         echo ""
@@ -318,6 +340,7 @@ while true; do
     # ── Parse .ralph_status header ──
     MODE_LINE=$(head -1 .ralph_status)
     STARTED_LINE=$(sed -n '2p' .ralph_status)
+    TOTAL_LINE=$(sed -n '3p' .ralph_status)
 
     # Extract mode, iteration, branch from "Mode: build | Iteration: 3 | Branch: main"
     RAW_MODE=$(echo "$MODE_LINE" | sed 's/Mode: //' | sed 's/ |.*//')
@@ -362,17 +385,15 @@ while true; do
     if [ ! -f "IMPLEMENTATION_PLAN.md" ]; then
         echo "IMPLEMENTATION_PLAN.md 없음 — ./loop.sh plan 먼저 실행 필요"
     else
-        # Count tasks from .ralph_status (already parsed by loop.sh)
-        COMPLETED=$(grep -c '^\[x\]' .ralph_status 2>/dev/null || echo "0")
-        PENDING=$(grep -c '^\[ \]\|^\[→\]' .ralph_status 2>/dev/null || echo "0")
-        TOTAL=$((COMPLETED + PENDING))
-
-        if [ "$TOTAL" -eq 0 ]; then
-            # Fallback: count from IMPLEMENTATION_PLAN.md directly
-            COMPLETED=$(sed '/<details>/,$d' IMPLEMENTATION_PLAN.md | grep -c '^\s*- \[x\]' 2>/dev/null || echo "0")
-            PENDING=$(sed '/<details>/,$d' IMPLEMENTATION_PLAN.md | grep -Ec '^\s*- \[ \]|^\s*- \[→\]' 2>/dev/null || echo "0")
-            TOTAL=$((COMPLETED + PENDING))
-        fi
+        # TOTAL from high-water mark in .ralph_status (line 3: "Total: N")
+        TOTAL=$(echo "$TOTAL_LINE" | grep -o 'Total: [0-9]*' | grep -o '[0-9]*')
+        TOTAL=${TOTAL:-0}
+        # PENDING = current [ ] + [→] lines in .ralph_status
+        PENDING=$(grep -Ec '^\[ \]|^\[→\]' .ralph_status 2>/dev/null || echo "0")
+        # COMPLETED = TOTAL - PENDING (accurate even when tasks are cleaned from plan)
+        COMPLETED=$((TOTAL - PENDING))
+        # Guard against negative (shouldn't happen, but be safe)
+        if [ "$COMPLETED" -lt 0 ]; then COMPLETED=0; fi
 
         if [ "$TOTAL" -eq 0 ]; then
             echo "[░░░░░░░░░░░░░░░░]  0/0   0%  ETA: 예측 중..."
@@ -408,7 +429,7 @@ while true; do
     echo "── Tasks ───────────────────────────────"
 
     # Extract task lines from .ralph_status (lines starting with [x], [→], [ ])
-    grep '^\[x\]\|^\[→\]\|^\[ \]' .ralph_status 2>/dev/null || echo "(태스크 없음)"
+    grep -E '^\[x\]|^\[→\]|^\[ \]' .ralph_status 2>/dev/null || echo "(태스크 없음)"
 
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
