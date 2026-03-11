@@ -40,8 +40,8 @@ cd ralph-claude-code && ./install.sh
 |---|---|
 | `/ralph-spec` | JTBD 파악 → specs 작성 → 자동 검증 및 수정 |
 | `/ralph-setup` | 루프 실행에 필요한 파일 일괄 생성 |
-| `/ralph_plan [n]` | Claude Code 내에서 plan 실행 (기본 1회) |
-| `/ralph_loop [n]` | Claude Code 내에서 build 실행 (기본 5회) |
+| `/ralph-plan [n]` | Claude Code 내에서 plan 실행 (기본 1회) |
+| `/ralph-loop [n]` | Claude Code 내에서 build 실행 (기본 5회) |
 
 ---
 

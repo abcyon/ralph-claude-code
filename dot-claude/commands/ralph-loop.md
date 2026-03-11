@@ -31,7 +31,7 @@
 
 3. `IMPLEMENTATION_PLAN.md` 없으면:
    ```
-   ⚠️ IMPLEMENTATION_PLAN.md가 없어. /ralph_plan을 먼저 실행하는 걸 권장해.
+   ⚠️ IMPLEMENTATION_PLAN.md가 없어. /ralph-plan을 먼저 실행하는 걸 권장해.
    그냥 진행할까? (y/n)
    ```
    → y면 계속, n이면 중단.
@@ -50,7 +50,7 @@ echo $! > .ralph_pid
 실행 후 아래 형식으로 안내:
 
 ```
-✅ /ralph_loop 시작 (build mode, N회)
+✅ /ralph-loop 시작 (build mode, N회)
 
 진행 상황 확인:
   ./status.sh              # 실시간 상태

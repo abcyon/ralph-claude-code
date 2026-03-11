@@ -23,7 +23,7 @@ bash install.sh   # 로컬 클론에서 설치
 
 ## Validation
 
-- 슬래시 커맨드 동작: Claude Code에서 `/ralph-spec`, `/ralph-setup`, `/ralph_plan`, `/ralph_loop` 실행
+- 슬래시 커맨드 동작: Claude Code에서 `/ralph-spec`, `/ralph-setup`, `/ralph-plan`, `/ralph-loop` 실행
 - loop.sh 문법: `bash -n loop.sh`
 - install.sh 문법: `bash -n install.sh`
 

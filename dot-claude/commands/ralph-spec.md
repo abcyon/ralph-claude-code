@@ -69,6 +69,11 @@
 문제 항목은 승인 없이 바로 수정. 완료 후 파일 목록과 acceptance criteria 개수 요약.
 
 ```
+# 터미널 방식
 ./loop.sh plan  # IMPLEMENTATION_PLAN.md 갱신
 ./loop.sh       # 빌드 루프 시작
+
+# Claude Code 내 방식 (컨텍스트 소모 없음)
+/ralph-plan     # IMPLEMENTATION_PLAN.md 생성 (1회)
+/ralph-loop     # 빌드 시작 (5회)
 ```

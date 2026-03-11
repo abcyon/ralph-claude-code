@@ -65,7 +65,16 @@ cp "$LOCAL_SRC/commands/"*.md "$TARGET/commands/"
 # CLAUDE.md — 기존 파일이 있으면 병합, 없으면 새로 설치
 if [ -f "$TARGET/CLAUDE.md" ]; then
     if grep -q "Ralph Wiggum Workflow" "$TARGET/CLAUDE.md"; then
-        echo "→ CLAUDE.md already has Ralph section — skipping"
+        echo "→ Updating Ralph section in CLAUDE.md..."
+        # Remove existing Ralph section (from "# Ralph Wiggum Workflow" to end of file or next top-level section)
+        # Strategy: delete the Ralph block and re-append the latest version
+        sed -i.bak '/^# Ralph Wiggum Workflow$/,/^# [^R]/{ /^# [^R]/!d; }' "$TARGET/CLAUDE.md"
+        # Remove trailing blank lines
+        sed -i.bak -e :a -e '/^\n*$/{$d;N;ba' -e '}' "$TARGET/CLAUDE.md"
+        printf "\n---\n\n" >> "$TARGET/CLAUDE.md"
+        cat "$LOCAL_SRC/CLAUDE.md" >> "$TARGET/CLAUDE.md"
+        rm -f "$TARGET/CLAUDE.md.bak"
+        echo "  ✓ Updated Ralph section in CLAUDE.md"
     else
         echo "→ Appending Ralph section to existing CLAUDE.md..."
         printf "\n---\n\n" >> "$TARGET/CLAUDE.md"
@@ -85,8 +94,8 @@ echo ""
 echo "Usage in Claude Code:"
 echo "  /ralph-spec    — 대화로 specs/ 작성 (새 프로젝트 / 기능 추가 / 기능 변경 / 버그 픽스)"
 echo "  /ralph-setup   — 프로젝트 초기 구성 (loop.sh + PROMPT_*.md + AGENTS.md)"
-echo "  /ralph_plan    — Claude Code 내에서 plan 실행 (기본 1회)"
-echo "  /ralph_loop    — Claude Code 내에서 build 실행 (기본 5회)"
+echo "  /ralph-plan    — Claude Code 내에서 plan 실행 (기본 1회)"
+echo "  /ralph-loop    — Claude Code 내에서 build 실행 (기본 5회)"
 echo ""
 echo "Then in terminal:"
 echo "  ./loop.sh plan   # IMPLEMENTATION_PLAN.md 생성"

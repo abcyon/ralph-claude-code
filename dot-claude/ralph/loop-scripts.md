@@ -67,7 +67,7 @@ ITERATION=0
 # 브랜치 변경 guard: 시작 브랜치를 고정하고 루프 중 변경되면 즉시 중단
 STARTING_BRANCH=$(git branch --show-current)
 
-# PID 기록 — /ralph_plan, /ralph_loop 커맨드에서 kill 용도로 사용
+# PID 기록 — /ralph-plan, /ralph-loop 커맨드에서 kill 용도로 사용
 echo $$ > .ralph_pid
 
 # Temp file for claude output (retry-after parsing)

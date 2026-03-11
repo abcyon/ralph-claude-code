@@ -29,17 +29,13 @@
 
 ## P2 — Minor / Cosmetic
 
-- [ ] **Command naming inconsistency: hyphen vs underscore** — Command files use hyphens (`ralph-plan.md`, `ralph-loop.md`) but spec, README, install.sh echo, and CLAUDE.md reference them with underscores (`/ralph_plan`, `/ralph_loop`). Claude Code resolves by filename → actual invocation is `/ralph-plan` and `/ralph-loop`. Either rename the files to `ralph_plan.md`/`ralph_loop.md` or update all docs to use hyphens.
-  - Files: `dot-claude/commands/ralph-plan.md`, `ralph-loop.md`, `specs/ralph-commands.md`, `README.md`, `install.sh`, `dot-claude/CLAUDE.md`
+- [x] **Command naming inconsistency: hyphen vs underscore** — Standardized all references to hyphens (`/ralph-plan`, `/ralph-loop`) to match filenames. Updated commands, specs, README, install.sh, CLAUDE.md, overview.md, AGENTS.md, loop.sh, loop-scripts.md.
 
-- [ ] **`install.sh` CLAUDE.md merge — stale detection** — If `~/.claude/CLAUDE.md` already contains "Ralph Wiggum Workflow", install.sh skips the update entirely (line 68). This means re-running install.sh won't update CLAUDE.md even if the repo version has new content (e.g., `/ralph_plan`, `/ralph_loop` rows). Needs a version-aware merge or replace strategy.
-  - File: `install.sh` (lines 66-79)
+- [x] **`install.sh` CLAUDE.md merge — stale detection** — Now removes existing Ralph section and re-appends latest version instead of skipping.
 
-- [ ] **`ralph-spec.md` — closing guidance doesn't mention /ralph_plan, /ralph_loop** — The closing block only shows terminal commands (`./loop.sh plan`, `./loop.sh`), doesn't mention the new slash command alternatives.
-  - File: `dot-claude/commands/ralph-spec.md`
+- [x] **`ralph-spec.md` — closing guidance now includes `/ralph-plan`, `/ralph-loop`** — Added slash command alternatives alongside terminal commands.
 
-- [ ] **`prompt-templates.md` — wrong path reference for PROMPT_plan_work.md** — References `references/loop-scripts.md` instead of `~/.claude/ralph/loop-scripts.md`.
-  - File: `dot-claude/ralph/prompt-templates.md`
+- [x] **`prompt-templates.md` — fixed path reference** — Changed `references/loop-scripts.md` to `~/.claude/ralph/loop-scripts.md`.
 
 ---
 
@@ -61,7 +57,7 @@
 - [x] `loop.sh` — .ralph_status 기록, PID 기록, branch guard, plan-work 모드 포함
 - [x] `install.sh` — 로컬/curl 양방향 설치, curl 모드 파일 목록 완비
 - [x] `specs/overview.md` — 프로젝트 목표, 기술 스택, 핵심 기능, 비목표
-- [x] `specs/ralph-commands.md` — /ralph_plan, /ralph_loop 상세 스펙
+- [x] `specs/ralph-commands.md` — /ralph-plan, /ralph-loop 상세 스펙
 - [x] **P0: install.sh curl 모드에서 새 커맨드 다운로드**
 - [x] **P0: .gitignore 생성**
 - [x] **P1: ralph-plan/loop.md 동시 실행 guard**

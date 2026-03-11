@@ -43,7 +43,7 @@ echo $! > .ralph_pid
 실행 후 아래 형식으로 안내:
 
 ```
-✅ /ralph_plan 시작 (plan mode, N회)
+✅ /ralph-plan 시작 (plan mode, N회)
 
 진행 상황 확인:
   ./status.sh              # 실시간 상태

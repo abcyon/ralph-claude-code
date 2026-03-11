@@ -79,4 +79,4 @@ ULTIMATE GOAL: [PROJECT GOAL]. If an element is missing, search first to confirm
 ## `PROMPT_plan_work.md` 템플릿
 
 `plan-work` 모드 전용. `loop.sh`가 `${WORK_SCOPE}`를 envsubst로 자동 치환.
-→ `references/loop-scripts.md` 참고
+→ `~/.claude/ralph/loop-scripts.md` 참고
