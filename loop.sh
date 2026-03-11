@@ -79,10 +79,18 @@ write_tasks() {
                 print "[x] " line
                 next
             }
+            /^[[:space:]]*- \[→\]/ {
+                line = $0
+                sub(/^[[:space:]]*- \[→\] /, "", line)
+                # In-progress items already marked — preserve as-is
+                print "[→] " line
+                found_running = 1
+                next
+            }
             /^[[:space:]]*- \[ \]/ {
                 line = $0
                 sub(/^[[:space:]]*- \[ \] /, "", line)
-                if (mark == "running" && !first) {
+                if (mark == "running" && !first && !found_running) {
                     print "[→] " line " — running..."
                     first = 1
                 } else {
@@ -239,9 +247,9 @@ while true; do
     ITERATION=$((ITERATION + 1))
     echo -e "\n\n======================== LOOP $ITERATION ========================\n"
 
-    # 구현 완료 시 루프 자동 종료: 미완료 항목(`- [ ]`) 0개이면 Done
+    # 구현 완료 시 루프 자동 종료: 미완료 항목(`- [ ]` + `- [→]`) 0개이면 Done
     if [ -f "IMPLEMENTATION_PLAN.md" ]; then
-        PENDING=$(grep -c '^\s*- \[ \]' IMPLEMENTATION_PLAN.md 2>/dev/null || echo "0")
+        PENDING=$(grep -c '^\s*- \[ \]\|^\s*- \[→\]' IMPLEMENTATION_PLAN.md 2>/dev/null || echo "0")
         if [ "$PENDING" -eq 0 ]; then
             echo "All tasks complete. Stopping loop."
             update_status_done

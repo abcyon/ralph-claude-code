@@ -27,6 +27,12 @@
 
 - [x] **`loop-scripts.md` template synced with `loop.sh`** — Updated Enhanced Loop template in `loop-scripts.md` to match all loop.sh changes.
 
+## Bug Fixes (discovered during review)
+
+- [x] **`loop.sh` — `write_tasks()` silently drops `[→]` in-progress items** — Added awk handler for `[→]` markers. If IMPLEMENTATION_PLAN.md has in-progress items, they are preserved in `.ralph_status` and prevent duplicate `[→]` marking on `[ ]` items.
+
+- [x] **`loop.sh` — auto-termination ignores `[→]` items** — Completion check now counts both `- [ ]` and `- [→]` as pending. Prevents premature loop exit when tasks are marked in-progress.
+
 ## P2 — Minor / Cosmetic
 
 - [x] **Command naming inconsistency: hyphen vs underscore** — Standardized all references to hyphens (`/ralph-plan`, `/ralph-loop`) to match filenames. Updated commands, specs, README, install.sh, CLAUDE.md, overview.md, AGENTS.md, loop.sh, loop-scripts.md.
