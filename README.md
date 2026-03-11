@@ -27,9 +27,10 @@ cd ralph-claude-code && ./install.sh
 
 ```
 1. /ralph-spec     대화로 JTBD 파악 → specs/ 작성 + 자동 검증
-2. /ralph-setup    loop.sh, PROMPT_*.md, AGENTS.md 생성
-3. ./loop.sh plan  IMPLEMENTATION_PLAN.md 생성
-4. ./loop.sh       무한 빌드 (무개입)
+2. /ralph-setup    loop.sh, status.sh, PROMPT_*.md, AGENTS.md 생성
+3. ./loop.sh plan  IMPLEMENTATION_PLAN.md 생성 (또는 /ralph-plan)
+4. ./loop.sh       무한 빌드 (또는 /ralph-loop)
+5. ./status.sh     실시간 진행 상황 확인
 ```
 
 ---
@@ -64,9 +65,10 @@ claude
 # 4. 루프 파일 생성
 /ralph-setup
 
-# 5. 터미널에서 루프 실행
-./loop.sh plan
-./loop.sh
+# 5. 루프 실행 (터미널 또는 Claude Code 내)
+./loop.sh plan   # 또는 Claude Code에서 /ralph-plan
+./loop.sh        # 또는 Claude Code에서 /ralph-loop
+./status.sh      # 실시간 진행 상황 확인
 ```
 
 ---

@@ -14,7 +14,7 @@ This project uses the Ralph Wiggum Technique: **Idea → Specs → Loop**
 | Slash Command | When | What it does |
 |---|---|---|
 | `/ralph-spec` | 언제든지 | 대화로 specs/ 파일 작성 — 새 프로젝트 / 기능 추가 / 기능 변경 / 버그 픽스 |
-| `/ralph-setup` | 프로젝트 초기 구성 시 | loop.sh, PROMPT_plan/build.md, AGENTS.md 생성 |
+| `/ralph-setup` | 프로젝트 초기 구성 시 | loop.sh, status.sh, PROMPT_plan/build/plan_work.md, AGENTS.md 생성 |
 | `/ralph-plan [n]` | plan 실행 시 | Claude Code 내에서 loop.sh plan 실행 (기본 1회) |
 | `/ralph-loop [n]` | build 실행 시 | Claude Code 내에서 loop.sh 실행 (기본 5회) |
 

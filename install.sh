@@ -35,6 +35,9 @@ else
         curl -fsSL "$BASE_URL/$path" -o "$dest"
     }
 
+    # NOTE: When adding new files to dot-claude/commands/ or dot-claude/ralph/,
+    # add a corresponding download line here. Local-clone mode uses globs,
+    # but curl mode must list each file explicitly.
     echo "→ Downloading files..."
     download "CLAUDE.md"                          "$TMP_DIR/CLAUDE.md"
     download "commands/ralph-spec.md"             "$TMP_DIR/commands/ralph-spec.md"
@@ -69,11 +72,11 @@ if [ -f "$TARGET/CLAUDE.md" ]; then
         # Remove existing Ralph section (from "# Ralph Wiggum Workflow" to end of file or next top-level section)
         # Strategy: delete the Ralph block and re-append the latest version
         # Uses awk to handle both mid-file and last-section cases (sed range fails at EOF)
-        awk '
-            /^# Ralph Wiggum Workflow$/ { skip=1; next }
-            skip && /^# / { skip=0 }
-            !skip { print }
-        ' "$TARGET/CLAUDE.md" > "$TARGET/CLAUDE.md.tmp"
+        awk '{
+            if (/^#/ && /Ralph Wiggum Workflow/) { skip=1; next }
+            if (skip && /^#/) { if (index($0,"Ralph Wiggum")==0) skip=0 }
+            if (skip==0) print
+        }' "$TARGET/CLAUDE.md" > "$TARGET/CLAUDE.md.tmp"
         mv "$TARGET/CLAUDE.md.tmp" "$TARGET/CLAUDE.md"
         # Remove trailing blank lines (portable — works on both macOS and Linux)
         awk '
