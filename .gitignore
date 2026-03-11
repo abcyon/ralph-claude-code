@@ -2,3 +2,4 @@
 .ralph_status
 *.log
 IMPLEMENTATION_PLAN.md
+PROMPT_*.md
