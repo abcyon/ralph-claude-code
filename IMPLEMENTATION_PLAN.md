@@ -17,7 +17,7 @@
 
 ## P2 — Minor / Cosmetic
 
-- [ ] **`install.sh` — `sed -i.bak` trailing-blank-line removal is macOS-only** — Line 79 uses `sed -i.bak -e :a -e '/^\n*$/{$d;N;ba' -e '}'` which is BSD/macOS `sed` syntax. GNU `sed` (Linux) interprets `-i.bak` differently and the expression may fail. Since `install.sh` supports curl-pipe from any platform, this should use a portable approach (e.g., `awk` or detect `sed` variant).
+(none remaining)
 
 ---
 
@@ -48,6 +48,7 @@
 - [x] **`loop.sh` — auto-termination ignores `[→]` items** — Completion check now counts both `[ ]` and `[→]` as pending.
 
 ### Previous P2 items
+- [x] **`install.sh` — `sed -i.bak` trailing-blank-line removal is macOS-only** — Replaced BSD `sed` with portable `awk` that buffers blank lines and only outputs them if followed by non-blank content.
 - [x] **Command naming inconsistency: hyphen vs underscore** — Standardized all references to hyphens.
 - [x] **`install.sh` CLAUDE.md merge — stale detection** — Now removes existing Ralph section and re-appends latest version.
 - [x] **`install.sh` CLAUDE.md merge — last-section edge case** — Replaced `sed` with `awk` for section removal.

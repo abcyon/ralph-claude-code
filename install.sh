@@ -75,11 +75,14 @@ if [ -f "$TARGET/CLAUDE.md" ]; then
             !skip { print }
         ' "$TARGET/CLAUDE.md" > "$TARGET/CLAUDE.md.tmp"
         mv "$TARGET/CLAUDE.md.tmp" "$TARGET/CLAUDE.md"
-        # Remove trailing blank lines
-        sed -i.bak -e :a -e '/^\n*$/{$d;N;ba' -e '}' "$TARGET/CLAUDE.md"
+        # Remove trailing blank lines (portable — works on both macOS and Linux)
+        awk '
+            /^[[:space:]]*$/ { blank = blank $0 "\n"; next }
+            { if (blank != "") { printf "%s", blank; blank = "" } print }
+        ' "$TARGET/CLAUDE.md" > "$TARGET/CLAUDE.md.tmp"
+        mv "$TARGET/CLAUDE.md.tmp" "$TARGET/CLAUDE.md"
         printf "\n---\n\n" >> "$TARGET/CLAUDE.md"
         cat "$LOCAL_SRC/CLAUDE.md" >> "$TARGET/CLAUDE.md"
-        rm -f "$TARGET/CLAUDE.md.bak"
         echo "  ✓ Updated Ralph section in CLAUDE.md"
     else
         echo "→ Appending Ralph section to existing CLAUDE.md..."
