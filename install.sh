@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-REPO="ghuntley/ralph-claude-code"
+REPO="abcyon/ralph-claude-code"
 BRANCH="main"
 TARGET="$HOME/.claude"
 
