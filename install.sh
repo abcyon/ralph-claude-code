@@ -24,7 +24,7 @@ else
 
     # 임시 디렉토리에 다운로드
     TMP_DIR=$(mktemp -d)
-    trap "rm -rf $TMP_DIR" EXIT
+    trap 'rm -rf "$TMP_DIR"' EXIT
 
     BASE_URL="https://raw.githubusercontent.com/$REPO/$BRANCH/dot-claude"
 
@@ -74,7 +74,7 @@ if [ -f "$TARGET/CLAUDE.md" ]; then
         # Uses awk to handle both mid-file and last-section cases (sed range fails at EOF)
         awk '{
             if (/^#/ && /Ralph Wiggum Workflow/) { skip=1; next }
-            if (skip && /^#/) { if (index($0,"Ralph Wiggum")==0) skip=0 }
+            if (skip && /^# [^#]/) { if (index($0,"Ralph Wiggum")==0) skip=0 }
             if (skip==0) print
         }' "$TARGET/CLAUDE.md" > "$TARGET/CLAUDE.md.tmp"
         mv "$TARGET/CLAUDE.md.tmp" "$TARGET/CLAUDE.md"

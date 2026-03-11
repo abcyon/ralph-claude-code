@@ -4,32 +4,7 @@
 
 사용자가 입력한 숫자가 있으면 그것을 N으로 사용. 없으면 N=1.
 
-## 2. 사전 점검
-
-다음 순서로 확인:
-
-0. `.ralph_pid` 파일이 존재하고, 해당 PID 프로세스가 살아있으면:
-   ```
-   ⚠️ 이미 실행 중인 ralph 프로세스가 있어 (PID: <pid>).
-   기존 프로세스를 중단하고 새로 시작할까? (y/n)
-   ```
-   → y면 `kill <pid>`, `.ralph_pid` 삭제 후 계속. n이면 중단.
-
-1. `loop.sh` 없으면:
-   ```
-   ❌ loop.sh를 찾을 수 없어.
-   먼저 /ralph-spec으로 스펙을 작성하고, /ralph-setup으로 초기 설정을 해줘.
-   ```
-   → 여기서 중단.
-
-2. `PROMPT_plan.md` 없으면:
-   ```
-   ❌ PROMPT_plan.md를 찾을 수 없어.
-   /ralph-setup을 먼저 실행해줘.
-   ```
-   → 여기서 중단.
-
-## 3. 실행 전 질문
+## 2. 실행 전 질문
 
 plan 시작 전에 loop 자동 연결 여부 확인:
 
@@ -39,16 +14,59 @@ plan 완료 후 loop를 자동으로 시작할까? (y/n)
 
 사용자 답변을 `AUTO_LOOP` 변수로 기억해둬 (y 또는 n).
 
-## 4. 실행
+## 3. 사전 점검 + 실행 (단일 Bash 호출)
 
-아래 명령을 백그라운드로 실행해. 출력은 `.ralph_plan.log`로 리다이렉트:
+아래 스크립트를 **하나의 Bash 호출**로 실행해. 출력 코드를 파싱해서 후속 처리:
 
 ```bash
-unset CLAUDECODE && ./loop.sh plan N > .ralph_plan.log 2>&1 &
-echo $! > .ralph_pid
+if [ -f .ralph_pid ] && kill -0 "$(cat .ralph_pid 2>/dev/null)" 2>/dev/null; then
+  echo "CONFLICT:$(cat .ralph_pid)"
+elif [ ! -f loop.sh ]; then
+  echo "MISSING:loop.sh"
+elif [ ! -f PROMPT_plan.md ]; then
+  echo "MISSING:PROMPT_plan.md"
+else
+  unset CLAUDECODE && ./loop.sh plan N > .ralph_plan.log 2>&1 &
+  PID=$!
+  echo "$PID" > .ralph_pid
+  echo "STARTED:$PID"
+fi
 ```
 
-## 5. 결과 출력
+**출력 코드 처리:**
+
+- `CONFLICT:<pid>` → 아래 메시지 출력 후 사용자에게 확인:
+  ```
+  ⚠️ 이미 실행 중인 ralph 프로세스가 있어 (PID: <pid>).
+  기존 프로세스를 중단하고 새로 시작할까? (y/n)
+  ```
+  → y면 아래를 **하나의 Bash 호출**로 실행:
+  ```bash
+  kill <pid> 2>/dev/null; rm -f .ralph_pid; sleep 1
+  unset CLAUDECODE && ./loop.sh plan N > .ralph_plan.log 2>&1 &
+  PID=$!
+  echo "$PID" > .ralph_pid
+  echo "STARTED:$PID"
+  ```
+  → n이면 중단.
+
+- `MISSING:loop.sh` →
+  ```
+  ❌ loop.sh를 찾을 수 없어.
+  먼저 /ralph-spec으로 스펙을 작성하고, /ralph-setup으로 초기 설정을 해줘.
+  ```
+  → 여기서 중단.
+
+- `MISSING:PROMPT_plan.md` →
+  ```
+  ❌ PROMPT_plan.md를 찾을 수 없어.
+  /ralph-setup을 먼저 실행해줘.
+  ```
+  → 여기서 중단.
+
+- `STARTED:<pid>` → 정상 시작. 4단계로 진행.
+
+## 4. 결과 출력
 
 실행 후 아래 형식으로 안내:
 
@@ -63,7 +81,7 @@ echo $! > .ralph_pid
 중단하려면: kill $(cat .ralph_pid)
 ```
 
-## 6. 완료 감지 + auto-chaining
+## 5. 완료 감지 + auto-chaining
 
 plan 프로세스 완료를 감지해야 해. 아래 로직을 실행:
 
@@ -76,14 +94,14 @@ plan 프로세스 완료를 감지해야 해. 아래 로직을 실행:
 
 **정상 완료 (`Done.` 있음):**
 - `AUTO_LOOP`가 y → `/ralph-loop` 흐름을 **사용자 개입 없이** 자동 시작. 아래 사전 점검은 모두 건너뜀:
-  - 2.0 (PID 충돌 체크) — plan 프로세스가 이미 종료되어 `.ralph_pid` 삭제됨
-  - 2.3 (IMPLEMENTATION_PLAN.md 확인 질문) — plan이 방금 완료됐으므로 존재 보장
-  - 바로 **3. 실행** 단계로 진입.
+  - PID 충돌 체크 — plan 프로세스가 이미 종료되어 `.ralph_pid` 삭제됨
+  - IMPLEMENTATION_PLAN.md 확인 질문 — plan이 방금 완료됐으므로 존재 보장
+  - 바로 `/ralph-loop`의 **3. 사전 점검 + 실행** 단계로 진입 (N=5 기본값).
 - `AUTO_LOOP`가 n → 사용자에게 재질문:
   ```
   plan이 완료됐어. loop를 시작할까? (y/n)
   ```
-  - y → `/ralph-loop` 흐름 시작
+  - y → `/ralph-loop` 흐름 시작 (전체 흐름, 사전 점검 포함)
   - n → 종료
 
 **비정상 종료 (`Done.` 없음):**

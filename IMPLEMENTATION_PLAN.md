@@ -9,15 +9,15 @@
 
 ## P0 — Critical Bugs
 
-(none remaining)
+(none)
 
 ## P1 — Important Gaps
 
-(none remaining)
+(none)
 
 ## P2 — Minor / Cosmetic
 
-(none remaining)
+(none)
 
 ---
 
@@ -27,8 +27,8 @@
 <summary>Click to expand</summary>
 
 ### Previous P0 items
+- [x] **`loop.sh` — `PIPESTATUS[0]` captures cat/envsubst, not claude** — Pipeline `cat|claude|tee` has PIPESTATUS[0]=cat, [1]=claude, [2]=tee. Changed `PIPESTATUS[0]` to `PIPESTATUS[1]` in both `loop.sh` AND `loop-scripts.md`.
 - [x] **`loop.sh` — auto-termination uses raw grep, Status Legend inflates PENDING count** — Replaced `grep -Ec` with `write_tasks "done" | grep -Ec '^\[ \]|^\[→\]'` + `PENDING=${PENDING:-0}`. Synced `loop-scripts.md` template.
-- [x] **`loop.sh` — `PIPESTATUS` index off-by-one (lines 206, 213)** — Changed `PIPESTATUS[1]` to `PIPESTATUS[0]` to capture claude's exit code instead of tee's. Synced `loop-scripts.md` template.
 - [x] **`loop.sh` — branch-change guard writes `Done.` on abnormal exit (line 251)** — Replaced `update_status_done` with `update_status "[ERROR] ..."` so abnormal exits don't have `Done.`, preventing false auto-chaining in `/ralph-plan`. Synced `loop-scripts.md` template.
 - [x] **`unset CLAUDECODE` missing from ralph-plan.md and ralph-loop.md** — Added `unset CLAUDECODE &&` to both command files.
 - [x] **`status.sh` template missing from `loop-scripts.md`** — Added full `status.sh` script section to `loop-scripts.md`.
@@ -40,6 +40,8 @@
 - [x] **`status.sh` — PENDING double-output crash when grep returns 0 matches** — Fixed `|| echo "0"` pattern to `${PENDING:-0}`.
 
 ### Previous P1 items
+- [x] **`install.sh` — CLAUDE.md merge awk: `##` sub-headings prematurely end skip** — Changed `^#` to `^# [^#]` in awk skip-end condition to match only top-level `# ` headings, not `##`/`###` sub-headings.
+- [x] **`/ralph-plan` + `/ralph-loop` — single Bash call for pre-check + execution** — Rewrote both command files to consolidate pre-check + execution into a single Bash call with structured output codes (CONFLICT, MISSING, NO_PLAN, STARTED). CONFLICT handling also uses single Bash call.
 - [x] **`PROMPT_build.md` + `PROMPT_plan.md` — missing IMPLEMENTATION_PLAN.md format rule comments** — Added format rule notes to `prompt-templates.md` for both PROMPT_plan.md and PROMPT_build.md templates.
 - [x] **Uncommitted spec/command changes committed** — `ralph-plan.md` (polling 30s, 30min timeout, auto-loop skip checks 2.0/2.3), `specs/ralph-commands.md` (auto-termination Legend bug spec, acceptance criteria updates), and P0 fix all committed together.
 - [x] **`status.sh` — stale-state detection not implemented** — Added `.ralph_pid` existence + `kill -0` check before displaying status. Stale status from crashed/killed loops now shows "ralph가 동작 중이지 않아 (stale status)". Synced `loop-scripts.md` template.
@@ -56,6 +58,7 @@
 - [x] **`loop.sh` — branch-change guard exits without `update_status_done`** — Added `update_status_done` call before `exit 1` in branch-change guard.
 
 ### Previous P2 items (batch 2)
+- [x] **`install.sh` — `$TMP_DIR` unquoted in trap** — Changed `trap "rm -rf $TMP_DIR" EXIT` to `trap 'rm -rf "$TMP_DIR"' EXIT` for safe handling of paths with spaces.
 - [x] **`dot-claude/CLAUDE.md` command table — `/ralph-setup` description incomplete** — Updated to include status.sh and PROMPT_plan_work.md.
 - [x] **`install.sh` curl mode — hardcoded file list asymmetry** — Added comment reminder for manual edits when adding new files.
 - [x] **`README.md` — `status.sh` not mentioned** — Added status.sh to usage flow and new project flow sections.

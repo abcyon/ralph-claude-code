@@ -203,14 +203,14 @@ while true; do
             --output-format=stream-json \
             --model opus \
             --verbose 2>&1 | tee "$CLAUDE_OUTPUT_FILE"
-        CLAUDE_EXIT=${PIPESTATUS[0]:-0}
+        CLAUDE_EXIT=${PIPESTATUS[1]:-0}
     else
         cat "$PROMPT_FILE" | claude -p \
             --dangerously-skip-permissions \
             --output-format=stream-json \
             --model opus \
             --verbose 2>&1 | tee "$CLAUDE_OUTPUT_FILE"
-        CLAUDE_EXIT=${PIPESTATUS[0]:-0}
+        CLAUDE_EXIT=${PIPESTATUS[1]:-0}
     fi
 
     if [ "$CLAUDE_EXIT" -ne 0 ]; then
