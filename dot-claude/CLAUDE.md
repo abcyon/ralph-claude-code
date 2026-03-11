@@ -37,3 +37,4 @@ After spec, run in terminal or use slash commands directly:
 - Prompt templates → `@~/.claude/ralph/prompt-templates.md`
 - loop.sh script → `@~/.claude/ralph/loop-scripts.md`
 - Backpressure → `@~/.claude/ralph/backpressure.md`
+- SLC release workflow → `@~/.claude/ralph/slc-release.md`

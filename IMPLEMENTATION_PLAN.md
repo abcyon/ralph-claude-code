@@ -13,6 +13,7 @@
 
 ## P2 — Minor / Cosmetic
 
+- [x] **`CLAUDE.md` — `slc-release.md` missing from Reference section** — Added `SLC release workflow → @~/.claude/ralph/slc-release.md` to the "Reference (load on demand)" list. File was installed by `install.sh` but not documented.
 - [x] **`loop-scripts.md` template drift — loop.sh 8 diffs, status.sh 5 diffs** — Synced Enhanced Loop template (MAX_TOTAL, .ralph_pid trap, =prefix filter, [→]→[ ] done revert, high-water mark in update_status/update_status_done, branch-guard update_status_done, ERE grep) and status.sh template (high-water mark model, TOTAL_LINE parsing, ERE grep, negative-COMPLETED guard, removed old log section).
 
 ---
